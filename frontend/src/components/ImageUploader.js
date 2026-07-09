@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { Upload, X, Image as ImageIcon, AlertCircle } from "lucide-react";
 
 export default function ImageUploader({ images, onChange }) {
   const [isDragging, setIsDragging] = useState(false);
   const [compressing, setCompressing] = useState(false);
+  const [error, setError] = useState("");
   const fileInputRef = useRef(null);
 
   const compressImage = (file) => {
@@ -50,23 +51,38 @@ export default function ImageUploader({ images, onChange }) {
   };
 
   const handleFiles = async (fileList) => {
-    setCompressing(true);
-    const newImages = [...images];
+    setError("");
     
-    for (let i = 0; i < fileList.length; i++) {
-      const file = fileList[i];
-      if (file.type.startsWith("image/")) {
-        try {
-          const compressed = await compressImage(file);
-          newImages.push(compressed);
-        } catch (error) {
-          console.error("Compression error:", error);
-        }
-      }
+    // Check if user already has an image
+    if (images.length > 0) {
+      setError("Only one image is allowed. Please remove the current image to upload a new one.");
+      return;
     }
 
-    onChange(newImages);
-    setCompressing(false);
+    // Check if user is trying to upload more than one file
+    if (fileList.length > 1) {
+      setError("You can only upload one image at a time.");
+      return;
+    }
+
+    setCompressing(true);
+    const file = fileList[0];
+    
+    if (!file.type.startsWith("image/")) {
+      setError("Please select a valid image file.");
+      setCompressing(false);
+      return;
+    }
+
+    try {
+      const compressed = await compressImage(file);
+      onChange([compressed]);
+    } catch (e) {
+      setError("Failed to process the image. Please try again.");
+      console.error("Compression error:", e);
+    } finally {
+      setCompressing(false);
+    }
   };
 
   const onDragOver = (e) => {
@@ -102,6 +118,13 @@ export default function ImageUploader({ images, onChange }) {
         Activity Photos
       </label>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-xs flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
       {/* Drag & Drop Area */}
       <div
         onDragOver={onDragOver}
@@ -119,7 +142,6 @@ export default function ImageUploader({ images, onChange }) {
           ref={fileInputRef}
           onChange={onFileChange}
           accept="image/*"
-          multiple
           className="hidden"
         />
         
@@ -129,10 +151,10 @@ export default function ImageUploader({ images, onChange }) {
           </div>
           <div>
             <p className="text-sm font-medium text-slate-700">
-              Drag & drop photos here, or <span className="text-blue-600 underline">browse</span>
+              Drag & drop photo here, or <span className="text-blue-600 underline">browse</span>
             </p>
             <p className="text-xs text-slate-500 mt-1">
-              Supports JPEG, PNG (Auto-compressed to stay within size limits)
+              One image only. Supports JPEG, PNG (Auto-compressed)
             </p>
           </div>
         </div>
