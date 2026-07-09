@@ -31,26 +31,23 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (loading) return;
 
-    // Route guards
     if (!user) {
-      // If not logged in, and trying to access protected routes, redirect to login
       if (pathname !== "/" && pathname !== "/login") {
-        router.push("/");
+        router.replace("/");
       }
-    } else {
-      // If logged in, and trying to access login page, redirect to dashboard
-      if (pathname === "/" || pathname === "/login") {
-        if (user.role === "admin") {
-          router.push("/admin");
-        } else {
-          router.push("/dashboard");
-        }
+      return;
+    }
+
+    if (pathname === "/" || pathname === "/login") {
+      const target = user.role === "admin" ? "/admin" : "/dashboard";
+      if (pathname !== target) {
+        router.replace(target);
       }
-      
-      // If student trying to access admin page directly, redirect to student dashboard
-      if (user.role === "student" && pathname.startsWith("/admin")) {
-        router.push("/dashboard");
-      }
+      return;
+    }
+
+    if (user.role === "student" && pathname.startsWith("/admin")) {
+      router.replace("/dashboard");
     }
   }, [user, loading, pathname, router]);
 
@@ -62,19 +59,17 @@ export function AuthProvider({ children }) {
     };
     localStorage.setItem("bca_session", JSON.stringify(session));
     setUser(session);
-    
-    // Redirect based on role
-    if (role === "admin") {
-      router.push("/admin");
-    } else {
-      router.push("/dashboard");
+
+    const target = role === "admin" ? "/admin" : "/dashboard";
+    if (window.location.pathname !== target) {
+      router.replace(target);
     }
   };
 
   const logout = () => {
     localStorage.removeItem("bca_session");
     setUser(null);
-    router.push("/");
+    router.replace("/");
   };
 
   return (

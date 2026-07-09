@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
+import SecurityGuard from "../components/SecurityGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col bg-[#F5F8FC] text-[#12203A]">
         <AuthProvider>
+          <SecurityGuard />
           <Navbar />
           <main className="flex-1 flex flex-col">
             {children}
