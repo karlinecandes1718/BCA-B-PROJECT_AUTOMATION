@@ -85,7 +85,8 @@ export default function AdminDashboard() {
     localStorage.setItem("bca_activities", JSON.stringify(updated));
   };
 
-  const categories = ["All", "Workshop", "Guest talk", "Hackathon", "Competition", "Seminars & Events"];
+  // Categories list for filtering - dynamically generated from current database logs
+  const categories = ["All", ...new Set(activities.map((act) => act.category).filter(Boolean))];
 
   // Filter and sort activities
   const filteredActivities = activities

@@ -20,6 +20,15 @@ export default function Navbar() {
     logout();
   };
 
+  const getFormattedIdentifier = (id) => {
+    if (!id) return "";
+    if (id.includes("@")) {
+      const namePart = id.split("@")[0];
+      return namePart.length > 14 ? namePart.substring(0, 12) + ".." : namePart;
+    }
+    return id.replace("Admin ", "");
+  };
+
   return (
     <>
       <nav className="bg-[#1E4FA3] text-white shadow-md border-b border-[#1E4FA3]/20 sticky top-0 z-40">
@@ -59,7 +68,7 @@ export default function Navbar() {
 
               {/* Mobile Profile Icon */}
               <div className="md:hidden flex items-center bg-white/10 px-2.5 py-1.5 rounded-md space-x-1">
-                <span className="text-xs font-semibold">{user.identifier}</span>
+                <span className="text-xs font-semibold">{getFormattedIdentifier(user.identifier)}</span>
               </div>
 
               <button

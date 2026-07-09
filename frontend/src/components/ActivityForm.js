@@ -162,17 +162,24 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
               <label className="block text-sm font-semibold text-slate-700 mb-1">
                 Category <span className="text-red-500">*</span>
               </label>
-              <select
+              <input
+                type="text"
+                list="categories-list"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
+                placeholder="Select or type a category"
                 className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-[#3B7DD8] focus:ring-1 focus:ring-[#3B7DD8] transition-all bg-slate-50/50"
-              >
-                <option value="Workshop">Workshop</option>
-                <option value="Guest talk">Guest talk</option>
-                <option value="Hackathon">Hackathon</option>
-                <option value="Competition">Competition</option>
-                <option value="Seminars & Events">Seminars & Events</option>
-              </select>
+                required
+              />
+              <datalist id="categories-list">
+                <option value="Workshop" />
+                <option value="Guest talk" />
+                <option value="Hackathon" />
+                <option value="Competition" />
+                <option value="Seminars & Events" />
+                <option value="Industrial Visit" />
+                <option value="Alumni Talk" />
+              </datalist>
             </div>
           </div>
 
