@@ -1,224 +1,181 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
+import Navbar from "../../components/Navbar";
 import ActivityCard from "../../components/ActivityCard";
 import ActivityForm from "../../components/ActivityForm";
 import { INITIAL_ACTIVITIES } from "../../utils/mockData";
-import { Search, Filter, Plus, Calendar, Shield, Sparkles, FileSpreadsheet } from "lucide-react";
+import { Search, Filter, Plus, Shield, FileSpreadsheet } from "lucide-react";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
-  
+  const router = useRouter();
+
   const [activities, setActivities] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
-
-  // Form Modal States
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingActivity, setEditingActivity] = useState(null); // null means "adding new"
+  const [editingActivity, setEditingActivity] = useState(null);
 
-  // Load activities from localStorage on mount
+  // Auth guard
   useEffect(() => {
-    const stored = localStorage.getItem("bca_activities");
-    if (stored) {
-      try {
+    if (loading) return;
+    if (!user) { router.replace("/"); return; }
+    if (user.role !== "admin") { router.replace("/dashboard"); return; }
+  }, [loading, user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load activities
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("bca_activities");
+      if (stored) {
         setActivities(JSON.parse(stored));
-      } catch (e) {
-        console.error("Error parsing stored activities", e);
+      } else {
+        localStorage.setItem("bca_activities", JSON.stringify(INITIAL_ACTIVITIES));
         setActivities(INITIAL_ACTIVITIES);
       }
-    } else {
-      localStorage.setItem("bca_activities", JSON.stringify(INITIAL_ACTIVITIES));
+    } catch {
       setActivities(INITIAL_ACTIVITIES);
     }
   }, []);
 
-  if (loading || !user) {
+  if (loading || !user || user.role !== "admin") {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#F5F8FC]">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1E4FA3] mx-auto"></div>
-          <p className="text-sm font-semibold text-slate-500">Redirecting to administrator console...</p>
-        </div>
+      <div className="flex-1 flex items-center justify-center min-h-screen bg-[#F8FAFC]">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1E4FA3]"></div>
       </div>
     );
   }
 
-  // Double guard: if student gets here, they shouldn't view it
-  if (user.role !== "admin") {
-    return null;
-  }
-
-  const handleAddClick = () => {
-    setEditingActivity(null);
-    setIsFormOpen(true);
-  };
-
-  const handleEditClick = (activity) => {
-    setEditingActivity(activity);
-    setIsFormOpen(true);
-  };
-
-  const handleDelete = (id) => {
-    const updated = activities.filter((act) => act.id !== id);
+  const saveActivities = (updated) => {
     setActivities(updated);
     localStorage.setItem("bca_activities", JSON.stringify(updated));
   };
 
   const handleSave = (savedActivity) => {
-    let updated;
-    const exists = activities.some((act) => act.id === savedActivity.id);
-
+    const exists = activities.some(a => a.id === savedActivity.id);
     if (exists) {
-      // Edit
-      updated = activities.map((act) => (act.id === savedActivity.id ? savedActivity : act));
+      saveActivities(activities.map(a => a.id === savedActivity.id ? savedActivity : a));
     } else {
-      // Add
-      // Include the current admin name in createdBy
       savedActivity.createdBy = user.identifier;
-      updated = [savedActivity, ...activities];
+      saveActivities([savedActivity, ...activities]);
     }
-
-    setActivities(updated);
-    localStorage.setItem("bca_activities", JSON.stringify(updated));
   };
 
-  // Categories list for filtering - dynamically generated from current database logs
-  const categories = ["All", ...new Set(activities.map((act) => act.category).filter(Boolean))];
+  const handleDelete = (id) => saveActivities(activities.filter(a => a.id !== id));
 
-  // Filter and sort activities
-  const filteredActivities = activities
-    .filter((act) => {
-      const matchSearch =
-        act.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        act.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchCategory =
-        selectedCategory === "All" ||
-        act.category.toLowerCase() === selectedCategory.toLowerCase();
+  const categories = ["All", "CPCG", "SESSIONS", "ANNOUNCEMENTS"];
 
-      return matchSearch && matchCategory;
+  const filtered = activities
+    .filter(a => {
+      const q = searchQuery.toLowerCase();
+      const matchSearch = a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q);
+      const matchCat = selectedCategory === "All" || a.category.toLowerCase() === selectedCategory.toLowerCase();
+      return matchSearch && matchCat;
     })
     .sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return sortBy === "newest" ? dateB - dateA : dateA - dateB;
+      const da = new Date(a.date).getTime(), db = new Date(b.date).getTime();
+      return sortBy === "newest" ? db - da : da - db;
     });
 
   return (
-    <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      
-      {/* Admin Dashboard header banner */}
-      <div className="bg-white rounded-2xl border border-[#D9E3F0] p-6 sm:p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <div className="flex items-center space-x-2 text-indigo-700 text-xs font-extrabold uppercase tracking-wide">
-            <Shield className="h-4 w-4" />
-            <span>Administrator Control Dashboard</span>
-          </div>
-          <h2 className="text-2xl font-black text-[#12203A] mt-1">3BCA-B Records Panel</h2>
-          <p className="text-xs text-slate-500 mt-1 leading-relaxed max-w-xl">
-            Logged in as <span className="font-bold text-slate-700">{user.identifier}</span>. You can create new activity entries, edit existing institutional logs, and remove records.
-          </p>
-        </div>
-        
-        <button
-          onClick={handleAddClick}
-          className="flex items-center space-x-2 bg-[#1E4FA3] hover:bg-[#3B7DD8] text-white px-5 py-3 rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
-        >
-          <Plus className="h-5 w-5" />
-          <span>Add Activity</span>
-        </button>
-      </div>
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
+      <Navbar />
+      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-      {/* Search & Filter Controls */}
-      <div className="bg-white rounded-xl border border-[#D9E3F0] p-4 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-        {/* Search */}
-        <div className="md:col-span-2 relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-            <Search className="h-4 w-4" />
+        {/* Admin Header */}
+        <div className="bg-white rounded-2xl border border-[#D9E3F0] p-5 sm:p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-indigo-700 text-xs font-extrabold uppercase tracking-wide mb-1">
+              <Shield className="h-4 w-4" />
+              <span>Administrator Control Dashboard</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A]">3BCA-B Records Panel</h2>
+            <p className="text-xs text-slate-500 mt-1 max-w-xl leading-relaxed">
+              Logged in as <span className="font-bold text-slate-700">{user.identifier}</span>. Create, edit, or remove activity logs.
+            </p>
           </div>
-          <input
-            type="text"
-            placeholder="Search by keywords (e.g. React, Cyber, security)..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full border border-slate-200 rounded-lg pl-9 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#3B7DD8] transition-all bg-slate-50/30"
-          />
-        </div>
-
-        {/* Category Filter */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-            <Filter className="h-4 w-4" />
-          </div>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full border border-slate-200 rounded-lg pl-9 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#3B7DD8] transition-all bg-slate-50/30"
-          >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Sorting */}
-        <div>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#3B7DD8] transition-all bg-slate-50/30"
-          >
-            <option value="newest">Sort: Newest First</option>
-            <option value="oldest">Sort: Oldest First</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Activities Grid */}
-      {filteredActivities.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredActivities.map((act) => (
-            <ActivityCard
-              key={act.id}
-              activity={act}
-              isAdmin={true}
-              onEdit={handleEditClick}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center max-w-md mx-auto shadow-sm">
-          <div className="flex justify-center text-slate-400 mb-3">
-            <FileSpreadsheet className="h-10 w-10 animate-pulse text-indigo-500" />
-          </div>
-          <h4 className="font-bold text-[#12203A] text-base">Add your first activity</h4>
-          <p className="text-xs text-slate-500 mt-1 leading-relaxed mb-6">
-            There are no logs in the database. Add an activity to begin creating classroom logs for students.
-          </p>
           <button
-            onClick={handleAddClick}
-            className="inline-flex items-center space-x-2 bg-[#1E4FA3] hover:bg-[#3B7DD8] text-white px-4 py-2 rounded-lg text-xs font-semibold shadow transition-all cursor-pointer"
+            onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}
+            className="flex items-center gap-2 bg-[#1E4FA3] hover:bg-[#3B7DD8] text-white px-5 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
           >
-            <Plus className="h-4 w-4" />
-            <span>Create Activity Record</span>
+            <Plus className="h-5 w-5" />
+            <span>Add Activity</span>
           </button>
         </div>
-      )}
 
-      {/* Activity Add/Edit Form Modal */}
-      <ActivityForm
-        isOpen={isFormOpen}
-        activity={editingActivity}
-        onClose={() => setIsFormOpen(false)}
-        onSave={handleSave}
-      />
+        {/* Filters */}
+        <div className="bg-white rounded-xl border border-[#D9E3F0] p-4 shadow-sm flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search activities..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full border border-slate-200 rounded-lg pl-9 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#3B7DD8] focus:ring-1 focus:ring-[#3B7DD8]/20 bg-slate-50/30"
+            />
+          </div>
+          <div className="relative sm:w-44">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <select
+              value={selectedCategory}
+              onChange={e => setSelectedCategory(e.target.value)}
+              className="w-full border border-slate-200 rounded-lg pl-9 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#3B7DD8] bg-slate-50/30"
+            >
+              {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+            className="sm:w-44 border border-slate-200 rounded-lg px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#3B7DD8] bg-slate-50/30"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
 
+        {/* Grid */}
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map(act => (
+              <ActivityCard
+                key={act.id}
+                activity={act}
+                isAdmin={true}
+                onEdit={a => { setEditingActivity(a); setIsFormOpen(true); }}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center max-w-md mx-auto shadow-sm">
+            <FileSpreadsheet className="h-10 w-10 text-indigo-400 mx-auto mb-3 animate-pulse" />
+            <h4 className="font-bold text-[#0F172A] text-base">Add your first activity</h4>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed mb-6">
+              No logs yet. Add an activity to start the classroom record.
+            </p>
+            <button
+              onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}
+              className="inline-flex items-center gap-2 bg-[#1E4FA3] hover:bg-[#3B7DD8] text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Create Activity Record</span>
+            </button>
+          </div>
+        )}
+
+        <ActivityForm
+          isOpen={isFormOpen}
+          activity={editingActivity}
+          onClose={() => setIsFormOpen(false)}
+          onSave={handleSave}
+        />
+      </div>
     </div>
   );
 }
