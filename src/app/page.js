@@ -5,6 +5,11 @@ import { useAuth } from "../context/AuthContext";
 import { BookOpen, User, Shield, Key, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+// ── Backend URL — read from Next.js env at build time (server-side safe) ──────
+// Set NEXT_PUBLIC_API_URL in your frontend .env.local for production.
+// This only exposes the SERVER ADDRESS (e.g. localhost:5000) — never any secret key.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+
 export default function LoginPage() {
   const { user, login, loading } = useAuth();
   const router = useRouter();
@@ -54,7 +59,7 @@ export default function LoginPage() {
     login("student", rollNumber.trim().toUpperCase());
   };
 
-  const handleAdminSubmit = (e) => {
+  const handleAdminSubmit = async (e) => {
     e.preventDefault();
     setAdminError("");
 
@@ -68,12 +73,27 @@ export default function LoginPage() {
       return;
     }
 
-    if (adminPassword !== "0987") {
-      setAdminError("Invalid administrator security code.");
-      return;
-    }
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/admin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password: adminPassword }),
+      });
 
-    login("admin", `Admin ${adminName.trim()}`);
+      const data = await response.json();
+
+      if (!data.success) {
+        setAdminError(data.error || "Invalid administrator credentials.");
+        return;
+      }
+
+      login("admin", `Admin ${adminName.trim()}`);
+    } catch (err) {
+      setAdminError("Unable to reach the authentication server. Please try again later.");
+      console.error("Auth error:", err);
+    }
   };
 
   return (
@@ -220,9 +240,6 @@ export default function LoginPage() {
                       required
                     />
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-1.5">
-                    Default developer code: <code className="bg-slate-100 px-1 py-0.5 rounded font-mono font-bold text-slate-600">0987</code>
-                  </p>
                 </div>
               </div>
 
