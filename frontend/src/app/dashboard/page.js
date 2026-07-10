@@ -42,7 +42,7 @@ export default function StudentDashboard() {
   if (loading || !user || user.role !== "student") {
     return (
       <div className="flex-1 flex items-center justify-center min-h-screen bg-[#F8FAFC]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1E4FA3]"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3B7DD8]"></div>
       </div>
     );
   }
@@ -87,7 +87,7 @@ export default function StudentDashboard() {
               placeholder="Search activities..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900/20 bg-white"
+              className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-[#3B7DD8] focus:ring-1 focus:ring-[#3B7DD8]/20 bg-white"
             />
           </div>
           <div className="relative sm:w-40">
@@ -95,7 +95,7 @@ export default function StudentDashboard() {
             <select
               value={selectedCategory}
               onChange={e => setSelectedCategory(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900/20 bg-white"
+              className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-[#3B7DD8] focus:ring-1 focus:ring-[#3B7DD8]/20 bg-white"
             >
               {categories.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -103,7 +103,7 @@ export default function StudentDashboard() {
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            className="sm:w-40 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900/20 bg-white"
+            className="sm:w-40 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-[#3B7DD8] focus:ring-1 focus:ring-[#3B7DD8]/20 bg-white"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>

@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F8FAFC;
-  --foreground: #0F172A;
-  --primary-blue: #1E4FA3;
-  --secondary-blue: #3B7DD8;
+  --background: #F0F7FF; /* Light blueish background */
+  --foreground: #1E293B;
+  --primary-blue: #3B7DD8; /* Premium Light/Medium blue */
+  --secondary-blue: #60A5FA; /* Brighter/Lighter blue */
   --border-color: #E2E8F0;
-  --indigo-accent: #6366F1;
+  --indigo-accent: #3B7DD8;
 }
 
 @theme inline {
@@ -21,7 +21,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
 }
 
