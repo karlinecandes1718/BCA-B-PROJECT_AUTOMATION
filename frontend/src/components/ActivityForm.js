@@ -39,6 +39,10 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
 
   if (!isOpen) return null;
 
+  const countWords = (text) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
@@ -54,6 +58,11 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
     }
     if (!description.trim()) {
       setFormError("Description or notes are required.");
+      return;
+    }
+    const wordCount = countWords(description);
+    if (wordCount > 100) {
+      setFormError(`Description must not exceed 100 words. Current: ${wordCount} words.`);
       return;
     }
 
@@ -162,33 +171,54 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
               <label className="block text-sm font-semibold text-slate-700 mb-1">
                 Category <span className="text-red-500">*</span>
               </label>
-              <select
+              <input
+                type="text"
+                list="categories-list"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
+                placeholder="Select or type a category"
                 className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-[#3B7DD8] focus:ring-1 focus:ring-[#3B7DD8] transition-all bg-slate-50/50"
-              >
-                <option value="Workshop">Workshop</option>
-                <option value="Guest talk">Guest talk</option>
-                <option value="Hackathon">Hackathon</option>
-                <option value="Competition">Competition</option>
-                <option value="Seminars & Events">Seminars & Events</option>
-              </select>
+                required
+              />
+              <datalist id="categories-list">
+                <option value="Workshop" />
+                <option value="Guest talk" />
+                <option value="Hackathon" />
+                <option value="Competition" />
+                <option value="Seminars & Events" />
+                <option value="Industrial Visit" />
+                <option value="Alumni Talk" />
+              </datalist>
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">
-              Raw Description / Event Log Details <span className="text-red-500">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-semibold text-slate-700">
+                Raw Description / Event Log Details <span className="text-red-500">*</span>
+              </label>
+              <span className={`text-xs font-medium ${
+                countWords(description) > 100 ? 'text-red-600' : 'text-slate-500'
+              }`}>
+                {countWords(description)}/100 words
+              </span>
+            </div>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Paste raw notes, speaker info, attendance summaries, lab guides, or results. The AI will structure this into the required institutional format."
               rows={6}
-              className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-1 focus:ring-[#3B7DD8] transition-all bg-slate-50/50 resize-y"
+              className={`w-full border rounded-lg px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 transition-all bg-slate-50/50 resize-y ${
+                countWords(description) > 100
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                  : 'border-slate-200 focus:border-[#3B7DD8] focus:ring-[#3B7DD8]'
+              }`}
               required
             />
+            {countWords(description) > 100 && (
+              <p className="text-xs text-red-600 mt-1">⚠ Description exceeds 100 words limit.</p>
+            )}
           </div>
 
           {/* Image Upload Integration */}
