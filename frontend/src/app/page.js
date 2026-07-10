@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { BookOpen, Shield, Key, AlertCircle, Mail, Chrome } from "lucide-react";
 
+// ── Backend URL — read from Next.js env at build time (server-side safe) ──────
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+
 export default function LoginPage() {
   const { user, loading, login } = useAuth();
   const router = useRouter();
@@ -55,14 +58,32 @@ export default function LoginPage() {
     router.replace("/dashboard");
   };
 
-  const handleAdminSubmit = (e) => {
+  const handleAdminSubmit = async (e) => {
     e.preventDefault();
     setAdminError("");
     if (!adminName.trim()) { setAdminError("Name is required."); return; }
     if (!adminPassword) { setAdminError("Password is required."); return; }
-    if (adminPassword !== "0987") { setAdminError("Invalid administrator security code."); return; }
-    login("admin", `Admin ${adminName.trim()}`);
-    router.replace("/admin");
+
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/admin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: adminPassword }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        setAdminError(data.error || "Invalid administrator credentials.");
+        return;
+      }
+
+      login("admin", `Admin ${adminName.trim()}`);
+      router.replace("/admin");
+    } catch (err) {
+      setAdminError("Unable to reach the authentication server. Please try again later.");
+      console.error("Auth error:", err);
+    }
   };
 
   return (
@@ -199,9 +220,6 @@ export default function LoginPage() {
                       className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900/20 transition-all"
                     />
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Security code: <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-slate-700">0987</code>
-                  </p>
                 </div>
                 <button
                   type="submit"
