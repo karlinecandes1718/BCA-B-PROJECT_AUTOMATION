@@ -14,7 +14,10 @@ const router = Router();
 
 /**
  * POST /api/keywords
- * Body: { "keywords": ["seo", "nextjs", "react"] }
+ * Body: {
+ *   "text"?: "seo, nextjs, react",
+ *   "image"?: { "mimeType": "image/jpeg", "data": "base64..." }
+ * }
  */
 router.post(
   '/',
@@ -24,40 +27,62 @@ router.post(
     next: NextFunction
   ) => {
     try {
-      const { keywords } = req.body as { keywords?: unknown };
+      const { text, image } = req.body as {
+        text?: string;
+        image?: { mimeType: string; data: string };
+      };
 
-      // ── Request validation — never trust client input ──────────────────────
-      if (!keywords || !Array.isArray(keywords) || keywords.length === 0) {
+      // ── 1. Require at least one input ─────────────────────────────────────────
+      if (!text && !image) {
         res.status(400).json({
           success: false,
-          error: 'Request body must include a non-empty "keywords" array.',
+          error: 'Request must include either text or an image.',
         });
         return;
       }
 
-      if (keywords.length > 20) {
-        res.status(400).json({
-          success: false,
-          error: 'A maximum of 20 keywords can be analyzed per request.',
-        });
-        return;
+      // ── 2. Image Guardrails ───────────────────────────────────────────────────
+      if (image) {
+        if (image.mimeType !== 'image/jpeg') {
+          res.status(400).json({
+            success: false,
+            error: 'Only image/jpeg format is supported.',
+          });
+          return;
+        }
+        if (!image.data || typeof image.data !== 'string') {
+          res.status(400).json({
+            success: false,
+            error: 'Image data must be a base64 encoded string.',
+          });
+          return;
+        }
       }
 
-      // Ensure every element is a non-empty string
-      const allStrings = keywords.every(
-        (k) => typeof k === 'string' && k.trim().length > 0
-      );
+      // ── 3. Text Guardrails & Parsing ──────────────────────────────────────────
+      let parsedKeywords: string[] = [];
+      if (text && typeof text === 'string') {
+        const rawText = text.trim();
+        // Calculate word count (splitting by whitespace)
+        const wordCount = rawText.split(/\s+/).filter((w) => w.length > 0).length;
+        
+        if (wordCount > 100) {
+          res.status(400).json({
+            success: false,
+            error: 'Text input exceeds the maximum limit of 100 words.',
+          });
+          return;
+        }
 
-      if (!allStrings) {
-        res.status(400).json({
-          success: false,
-          error: 'All keywords must be non-empty strings.',
-        });
-        return;
+        // Parse into a string array (split by commas or newlines)
+        parsedKeywords = rawText
+          .split(/[\n,]+/)
+          .map((k) => k.trim())
+          .filter((k) => k.length > 0);
       }
 
       // ── Orchestrate through the processor ─────────────────────────────────
-      const data = await processKeywordsForClient(keywords as string[]);
+      const data = await processKeywordsForClient(parsedKeywords, image);
 
       // ── Return ONLY the clean typed payload — no metadata, no tokens ───────
       res.status(200).json({

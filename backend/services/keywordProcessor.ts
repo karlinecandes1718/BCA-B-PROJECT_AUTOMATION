@@ -13,30 +13,26 @@ import { generateKeywordData } from './geminiService.js';
 import type { KeywordResult } from '../types/keyword.js';
 
 /**
- * Processes a raw array of keyword strings through the Gemini Flash service
+ * Processes a raw array of keyword strings and an optional image through the Gemini Flash service
  * and returns a clean, client-safe `KeywordResult[]`.
  *
- * @param rawKeywords - Raw array of keyword strings from the HTTP request body.
- * @returns           - A typed Promise resolving to a clean `KeywordResult[]`.
- * @throws            - A sanitized operational error (never leaks system internals).
+ * @param parsedKeywords - Array of keyword strings.
+ * @param image          - Optional Base64 encoded image object.
+ * @returns              - A typed Promise resolving to a clean `KeywordResult[]`.
+ * @throws               - A sanitized operational error (never leaks system internals).
  */
-async function processKeywordsForClient(rawKeywords: string[]): Promise<KeywordResult[]> {
+async function processKeywordsForClient(
+  parsedKeywords: string[],
+  image?: { mimeType: string; data: string }
+): Promise<KeywordResult[]> {
 
   // ── Pre-flight validation ───────────────────────────────────────────────────
-  if (!Array.isArray(rawKeywords)) {
-    throw new Error('Input must be an array of keyword strings.');
-  }
-
-  if (rawKeywords.length === 0) {
-    throw new Error('At least one keyword is required.');
-  }
-
-  if (rawKeywords.length > 20) {
-    throw new Error('A maximum of 20 keywords can be processed per request.');
+  if (parsedKeywords.length === 0 && !image) {
+    throw new Error('At least one keyword or an image is required.');
   }
 
   // ── Forward to Gemini service ──────────────────────────────────────────────
-  const rawResults = await generateKeywordData(rawKeywords);
+  const rawResults = await generateKeywordData(parsedKeywords, image);
 
   // ── Safe array verification ────────────────────────────────────────────────
   // Even though generateKeywordData already narrows the type, we verify here

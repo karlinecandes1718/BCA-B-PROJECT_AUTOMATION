@@ -50,36 +50,69 @@ function resolveModel(requestedModel?: string): AllowedModel {
  */
 async function generateKeywordData(
   keywordList: string[],
+  image?: { mimeType: string; data: string },
   model?: string
 ): Promise<KeywordResult[]> {
 
-  // ── Input Validation ───────────────────────────────────────────────────────
-  if (!Array.isArray(keywordList) || keywordList.length === 0) {
-    throw new Error('keywordList must be a non-empty array of strings.');
-  }
+  // ── 1. Input Validation ───────────────────────────────────────────────────
+  const sanitizedKeywords: string[] = Array.isArray(keywordList) 
+    ? keywordList.map((k) => String(k).trim()).filter((k) => k.length > 0)
+    : [];
 
-  const sanitizedKeywords: string[] = keywordList
-    .map((k) => String(k).trim())
-    .filter((k) => k.length > 0);
-
-  if (sanitizedKeywords.length === 0) {
-    throw new Error('keywordList contained no valid (non-empty) keywords after sanitization.');
+  if (sanitizedKeywords.length === 0 && !image) {
+    throw new Error('You must provide either valid keywords or an image to analyze.');
   }
 
   const resolvedModel = resolveModel(model);
 
-  // ── API Call ───────────────────────────────────────────────────────────────
-  try {
-    const response = await ai.models.generateContent({
-      model: resolvedModel,
-      contents: `You are an expert SEO content strategist.
+  // ── 2. Determine Workflow & Build Payload ─────────────────────────────────
+  let contentsPayload: any;
+  const isImageOnly = sanitizedKeywords.length === 0 && image;
+  const isHybrid = sanitizedKeywords.length > 0 && image;
+
+  if (isImageOnly && image) {
+    // Workflow 2: Image Only
+    contentsPayload = [
+      { inlineData: { mimeType: image.mimeType, data: image.data.replace(/^data:image\/\w+;base64,/, "") } },
+      { text: `You are an expert SEO content strategist.
+Extract the dominant items, objects, or themes from this image and treat them as keywords.
+For EACH extracted keyword provide:
+1. "description": a precise, keyword-rich description in exactly 30 words.
+2. "summary": a single compelling sentence summarizing its SEO search value.
+
+Return ONLY a valid JSON array with one object per keyword. No markdown, no extra text.` }
+    ];
+  } else if (isHybrid && image) {
+    // Workflow 3: Fused Hybrid
+    contentsPayload = [
+      { inlineData: { mimeType: image.mimeType, data: image.data.replace(/^data:image\/\w+;base64,/, "") } },
+      { text: `You are an expert SEO content strategist.
+Analyze the following keywords and fuse them with the visual context from the provided image.
+For EACH keyword provide:
+1. "description": a precise, keyword-rich description in exactly 30 words incorporating visual details from the image.
+2. "summary": a single compelling sentence summarizing its SEO search value.
+
+Keywords to analyze: ${sanitizedKeywords.join(', ')}
+
+Return ONLY a valid JSON array with one object per keyword. No markdown, no extra text.` }
+    ];
+  } else {
+    // Workflow 1: Keywords Only
+    contentsPayload = `You are an expert SEO content strategist.
 Analyze the following keywords and for EACH keyword provide:
 1. "description": a precise, keyword-rich description in exactly 30 words.
 2. "summary": a single compelling sentence summarizing its SEO search value.
 
 Keywords to analyze: ${sanitizedKeywords.join(', ')}
 
-Return ONLY a valid JSON array with one object per keyword. No markdown, no extra text.`,
+Return ONLY a valid JSON array with one object per keyword. No markdown, no extra text.`;
+  }
+
+  // ── 3. API Call ───────────────────────────────────────────────────────────
+  try {
+    const response = await ai.models.generateContent({
+      model: resolvedModel,
+      contents: contentsPayload,
       config: {
         // ── Structured Output: Forces Gemini to return parseable JSON ────────
         responseMimeType: 'application/json',
@@ -98,7 +131,7 @@ Return ONLY a valid JSON array with one object per keyword. No markdown, no extr
       },
     });
 
-    // ── Safe Parsing ───────────────────────────────────────────────────────
+    // ── 4. Safe Parsing ──────────────────────────────────────────────────────
     const rawText = response.text;
 
     if (!rawText || rawText.trim() === '') {
@@ -134,12 +167,17 @@ Return ONLY a valid JSON array with one object per keyword. No markdown, no extr
     return results;
 
   } catch (error: unknown) {
-    // ── Safe Error Handling: never leak the API key ────────────────────────
+    // ── 5. Safe Error Handling ───────────────────────────────────────────────
     const rawMessage = error instanceof Error ? error.message : String(error);
+
+    // Detect unreadable image errors from the API (safety, corrupted, bad format, etc.)
+    const isImageError = /image|format|safety|content/i.test(rawMessage);
+    if (image && isImageError) {
+      throw new Error("Unable to read the image. Please delete it and add a clearer image, or add a text description instead.");
+    }
 
     // Redact the API key from the message in case it appears in an SDK error
     const safeMessage = rawMessage.replaceAll(env.GEMINI_API_KEY, '[REDACTED]');
-
     console.error(`[geminiService] Gemini API error: ${safeMessage}`);
 
     // Throw a generic operational error — safe for upstream route handlers
