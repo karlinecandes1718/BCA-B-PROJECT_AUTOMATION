@@ -9,8 +9,10 @@
 import './config/env.js';
 
 import express from 'express';
+import cors from 'cors';
 import { env } from './config/env.js';
 import keywordsRouter from './routes/keywords.js';
+import authRouter from './routes/auth.js';
 
 const app = express();
 
@@ -18,9 +20,16 @@ const app = express();
 app.use(express.json());
 
 // ─── Security: Remove server fingerprinting ───────────────────────────────────
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+}));
+
 app.disable('x-powered-by');
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
+app.use('/api/auth', authRouter);
 app.use('/api/keywords', keywordsRouter);
 
 // ─── Global Error Handler ─────────────────────────────────────────────────────
