@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import { BookOpen, Shield, Key, AlertCircle, Mail, CheckCircle } from "lucide-react";
+import { BookOpen, Shield, Key, AlertCircle, Mail, CheckCircle, RotateCw } from "lucide-react";
 
 export default function LoginPage() {
   const { user, loading, login } = useAuth();
@@ -21,11 +21,25 @@ export default function LoginPage() {
   const [otp, setOtp] = useState("");
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  
+  // 90-second Resend Cooldown Countdown state
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   // Admin form state
   const [adminName, setAdminName] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [adminError, setAdminError] = useState("");
+
+  // Countdown timer effect
+  useEffect(() => {
+    let timer;
+    if (resendCooldown > 0) {
+      timer = setTimeout(() => {
+        setResendCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
 
   // Redirect if already logged in — runs only once when loading finishes
   useEffect(() => {
@@ -62,10 +76,10 @@ export default function LoginPage() {
       return;
     }
 
-    // Validate strictly that it's a @bcah.christuniversity.in email address
+    // Frontend validation: email ends with @bcah.christuniversity.in
     const christEmailRegex = /^[a-zA-Z0-9._%+-]+@bcah\.christuniversity\.in$/i;
     if (!christEmailRegex.test(trimmed)) {
-      setStudentError("Access Denied. Only official @bcah.christuniversity.in email addresses are allowed.");
+      setStudentError("Please use your Christ University email ID (@bcah.christuniversity.in).");
       return;
     }
 
@@ -80,11 +94,45 @@ export default function LoginPage() {
 
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         setOtpStep(2);
+        setResendCooldown(90); // Start 90 seconds countdown
         setSuccessMessage(data.message || "Verification code sent to your Christ email.");
       } else {
-        setStudentError(data.error || "Failed to send verification code. Please check your setup.");
+        setStudentError(data.error || data.message || "Failed to send verification code.");
+      }
+    } catch (err) {
+      console.error(err);
+      setStudentError("An error occurred. Please check your connection and try again.");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  // Resend OTP handler
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0) return;
+
+    setStudentError("");
+    setSuccessMessage("");
+    setSendingOtp(true);
+
+    const trimmed = gmail.trim().toLowerCase();
+
+    try {
+      const res = await fetch("/api/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setResendCooldown(90); // Reset 90 seconds countdown
+        setSuccessMessage(data.message || "A new verification code has been sent.");
+      } else {
+        setStudentError(data.error || data.message || "Failed to resend verification code.");
       }
     } catch (err) {
       console.error(err);
@@ -122,11 +170,11 @@ export default function LoginPage() {
 
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         login("student", gmail.trim().toLowerCase());
         router.replace("/dashboard");
       } else {
-        setStudentError(data.error || "Invalid verification code. Please try again.");
+        setStudentError(data.error || data.message || "Invalid verification code.");
       }
     } catch (err) {
       console.error(err);
@@ -308,7 +356,7 @@ export default function LoginPage() {
                         <button
                           type="button"
                           onClick={() => setOtpStep(1)}
-                          className="text-[10px] text-[#3B7DD8] font-bold hover:underline"
+                          className="text-[10px] text-[#3B7DD8] font-bold hover:underline cursor-pointer"
                         >
                           Change Email
                         </button>
@@ -318,10 +366,16 @@ export default function LoginPage() {
                     <div className="flex gap-3">
                       <button
                         type="button"
-                        onClick={handleSendOtp}
-                        className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-600 py-3 px-4 rounded-xl text-sm font-semibold transition-all cursor-pointer"
+                        onClick={handleResendOtp}
+                        disabled={resendCooldown > 0 || sendingOtp}
+                        className={`flex-1 border border-slate-200 text-xs font-bold tracking-wide uppercase py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                          resendCooldown > 0 || sendingOtp
+                            ? "bg-slate-50 text-slate-400 cursor-not-allowed"
+                            : "hover:bg-slate-50 text-slate-600 cursor-pointer"
+                        }`}
                       >
-                        Resend
+                        <RotateCw className={`h-3.5 w-3.5 ${sendingOtp ? "animate-spin" : ""}`} />
+                        {resendCooldown > 0 ? `Resend (${resendCooldown}s)` : "Resend"}
                       </button>
                       <button
                         type="submit"

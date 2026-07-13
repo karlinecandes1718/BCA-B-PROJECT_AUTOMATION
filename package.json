@@ -2,9 +2,12 @@
   "name": "bca-project-automation",
   "private": true,
   "scripts": {
-    "dev": "npm --prefix frontend run dev",
+    "dev": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
     "build": "npm --prefix frontend run build",
-    "start": "npm --prefix frontend run start",
+    "start": "concurrently \"npm --prefix backend start\" \"npm --prefix frontend start\"",
     "lint": "npm --prefix frontend run lint"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
   }
 }
