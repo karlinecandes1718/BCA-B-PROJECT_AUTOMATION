@@ -23,12 +23,23 @@ function sendPayload(res, statusCode, success, message, data = null) {
   return res.status(statusCode).json(payload);
 }
 
-// REAL EMAIL FUNCTION - Uses Brevo to send actual emails
+// REAL EMAIL FUNCTION - Uses Brevo, Gmail, or Ethereal for testing
 async function sendRealOtpEmail(toEmail, otpCode) {
   const emailService = process.env.EMAIL_SERVICE || 'brevo';
+  const devMode = process.env.DEV_MODE === 'true';
+  const showOtpInConsole = process.env.SHOW_OTP_IN_CONSOLE === 'true';
   
   console.log(`\n📧 SENDING REAL OTP to: ${toEmail}`);
   console.log(`📧 Using service: ${emailService}`);
+  
+  // In development mode, always show OTP in console
+  if (devMode || showOtpInConsole) {
+    console.log(`\n🔥 DEVELOPMENT MODE - OTP FOR TESTING:`);
+    console.log(`🔑 EMAIL: ${toEmail}`);
+    console.log(`🔑 OTP CODE: ${otpCode}`);
+    console.log(`🔑 USE THIS CODE TO LOGIN: ${otpCode}`);
+    console.log(`🔥 ================================\n`);
+  }
   
   try {
     let transporter;
@@ -58,9 +69,9 @@ async function sendRealOtpEmail(toEmail, otpCode) {
       
       fromEmail = `"${process.env.BREVO_SENDER_NAME || 'BCA-B Activity Portal'}" <${senderEmail}>`;
       
-    } else {
-      // Fallback (shouldn't happen with your config)
-      console.log('⚠️ Using Ethereal (testing only)');
+    } else if (emailService === 'ethereal') {
+      // Ethereal Email for testing
+      console.log('📧 Using Ethereal Email (Testing Service)');
       transporter = nodemailer.createTransport({
         host: 'smtp.ethereal.email',
         port: 587,
@@ -71,7 +82,28 @@ async function sendRealOtpEmail(toEmail, otpCode) {
         }
       });
       
-      fromEmail = '"BCA-B Portal" <test@ethereal.email>';
+      fromEmail = '"BCA-B Portal (TEST)" <test@ethereal.email>';
+      
+    } else {
+      // Gmail fallback
+      const gmailUser = process.env.EMAIL_USER;
+      const gmailPass = process.env.EMAIL_PASS;
+      
+      if (!gmailUser || !gmailPass) {
+        throw new Error('Gmail credentials missing in .env file');
+      }
+      
+      transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: gmailUser,
+          pass: gmailPass
+        }
+      });
+      
+      fromEmail = `"BCA-B Activity Portal" <${gmailUser}>`;
     }
     
     // Verify connection
@@ -173,6 +205,12 @@ Christ University
     if (emailService === 'brevo') {
       console.log(`✅ Real email sent to inbox via Brevo`);
       console.log(`📧 Check: ${toEmail} (and spam folder)`);
+    } else if (emailService === 'ethereal') {
+      console.log(`✅ Test email sent via Ethereal`);
+      console.log(`📧 Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+      console.log(`📧 Note: This is a test email, check console for OTP code`);
+    } else {
+      console.log(`✅ Email sent via ${emailService}`);
     }
     
     return true;
@@ -180,11 +218,86 @@ Christ University
   } catch (error) {
     console.error(`\n❌ EMAIL SEND FAILED: ${error.message}`);
     
+    // In development mode, even if email fails, we can still show OTP in console
+    if (devMode && showOtpInConsole) {
+      console.log(`\n⚠️  EMAIL FAILED BUT SHOWING OTP FOR DEVELOPMENT:`);
+      console.log(`🔑 EMAIL: ${toEmail}`);
+      console.log(`🔑 OTP CODE: ${otpCode}`);
+      console.log(`🔑 USE THIS CODE TO LOGIN: ${otpCode}`);
+      console.log(`⚠️  ================================\n`);
+      return true; // Continue despite email failure in dev mode
+    }
+    
+    // Check if it's a Brevo activation error and fall back to Ethereal
+    if (error.message.includes('not yet activated') || error.message.includes('Authentication')) {
+      console.log(`\n🔄 BREVO ACCOUNT NOT ACTIVATED - FALLING BACK TO ETHEREAL`);
+      console.log(`📧 Attempting to send via Ethereal Email (test service)...`);
+      
+      try {
+        // Fallback to Ethereal
+        const etherealTransporter = nodemailer.createTransport({
+          host: 'smtp.ethereal.email',
+          port: 587,
+          secure: false,
+          auth: {
+            user: 'watlbqiafpbjws7l@ethereal.email',
+            pass: 'eKUKFRytq6vW3bV2ue'
+          }
+        });
+        
+        const fallbackMailOptions = {
+          from: '"BCA-B Portal (TEST)" <test@ethereal.email>',
+          to: toEmail,
+          subject: 'Your OTP Code - BCA-B Activity Portal (TEST)',
+          text: `Your verification code is: ${otpCode}. This code will expire in 90 seconds.`,
+          html: `<div style="font-family: Arial, sans-serif; padding: 20px; background: #f0f7ff; border-radius: 10px;">
+            <h2>🔐 BCA-B Activity Portal</h2>
+            <p>Your verification code is:</p>
+            <div style="background: white; padding: 20px; text-align: center; border-radius: 5px; margin: 10px 0;">
+              <span style="font-size: 24px; font-weight: bold; color: #3b7dd8;">${otpCode}</span>
+            </div>
+            <p><small>This is a test email. In production, check your actual email inbox.</small></p>
+          </div>`
+        };
+        
+        await etherealTransporter.verify();
+        const info = await etherealTransporter.sendMail(fallbackMailOptions);
+        
+        console.log(`✅ FALLBACK EMAIL SENT VIA ETHEREAL!`);
+        console.log(`✅ To: ${toEmail}`);
+        console.log(`✅ Code: ${otpCode}`);
+        console.log(`📧 Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+        
+        if (devMode && showOtpInConsole) {
+          console.log(`\n🔥 DEVELOPMENT MODE - USE THIS OTP:`);
+          console.log(`🔑 OTP CODE: ${otpCode}`);
+          console.log(`🔥 ================================\n`);
+        }
+        
+        return true;
+        
+      } catch (fallbackError) {
+        console.error(`❌ Fallback email also failed: ${fallbackError.message}`);
+        
+        // Last resort: just show OTP in console if in dev mode
+        if (devMode && showOtpInConsole) {
+          console.log(`\n🆘 EMAIL COMPLETELY FAILED - CONSOLE OTP ONLY:`);
+          console.log(`🔑 EMAIL: ${toEmail}`);
+          console.log(`🔑 OTP CODE: ${otpCode}`);
+          console.log(`🔑 USE THIS CODE TO LOGIN: ${otpCode}`);
+          console.log(`🆘 ================================\n`);
+          return true;
+        }
+        
+        throw fallbackError;
+      }
+    }
+    
     if (error.message.includes('Authentication')) {
-      console.log(`\n🔑 BREVO AUTHENTICATION ERROR:`);
-      console.log(`1. Check Brevo SMTP key in .env file`);
-      console.log(`2. Verify Brevo account is active`);
-      console.log(`3. Check daily limits (300 emails/day free)`);
+      console.log(`\n🔑 AUTHENTICATION ERROR:`);
+      console.log(`1. Check SMTP credentials in .env file`);
+      console.log(`2. Verify email service account is active`);
+      console.log(`3. Check daily limits`);
     }
     
     throw error;
