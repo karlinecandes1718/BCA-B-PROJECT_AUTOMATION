@@ -23,287 +23,6 @@ function sendPayload(res, statusCode, success, message, data = null) {
   return res.status(statusCode).json(payload);
 }
 
-// REAL EMAIL FUNCTION - Uses Brevo, Gmail, or Ethereal for testing
-async function sendRealOtpEmail(toEmail, otpCode) {
-  const emailService = process.env.EMAIL_SERVICE || 'brevo';
-  const devMode = process.env.DEV_MODE === 'true';
-  const showOtpInConsole = process.env.SHOW_OTP_IN_CONSOLE === 'true';
-  
-  console.log(`\n📧 SENDING REAL OTP to: ${toEmail}`);
-  console.log(`📧 Using service: ${emailService}`);
-  
-  // In development mode, always show OTP in console
-  if (devMode || showOtpInConsole) {
-    console.log(`\n🔥 DEVELOPMENT MODE - OTP FOR TESTING:`);
-    console.log(`🔑 EMAIL: ${toEmail}`);
-    console.log(`🔑 OTP CODE: ${otpCode}`);
-    console.log(`🔑 USE THIS CODE TO LOGIN: ${otpCode}`);
-    console.log(`🔥 ================================\n`);
-  }
-  
-  try {
-    let transporter;
-    let fromEmail;
-    
-    if (emailService === 'brevo') {
-      // Brevo configuration
-      const brevoUser = process.env.BREVO_SMTP_USER;
-      const brevoPass = process.env.BREVO_SMTP_KEY;
-      const senderEmail = process.env.BREVO_SENDER_EMAIL || brevoUser;
-      
-      if (!brevoUser || !brevoPass) {
-        throw new Error('Brevo credentials missing in .env file');
-      }
-      
-      console.log(`📧 Brevo user: ${brevoUser}`);
-      
-      transporter = nodemailer.createTransport({
-        host: 'smtp-relay.brevo.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: brevoUser,
-          pass: brevoPass
-        }
-      });
-      
-      fromEmail = `"${process.env.BREVO_SENDER_NAME || 'BCA-B Activity Portal'}" <${senderEmail}>`;
-      
-    } else if (emailService === 'ethereal') {
-      // Ethereal Email for testing
-      console.log('📧 Using Ethereal Email (Testing Service)');
-      transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-          user: 'watlbqiafpbjws7l@ethereal.email',
-          pass: 'eKUKFRytq6vW3bV2ue'
-        }
-      });
-      
-      fromEmail = '"BCA-B Portal (TEST)" <test@ethereal.email>';
-      
-    } else {
-      // Gmail fallback
-      const gmailUser = process.env.EMAIL_USER;
-      const gmailPass = process.env.EMAIL_PASS;
-      
-      if (!gmailUser || !gmailPass) {
-        throw new Error('Gmail credentials missing in .env file');
-      }
-      
-      transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: gmailUser,
-          pass: gmailPass
-        }
-      });
-      
-      fromEmail = `"BCA-B Activity Portal" <${gmailUser}>`;
-    }
-    
-    // Verify connection
-    console.log('🔗 Verifying email connection...');
-    await transporter.verify();
-    console.log('✅ Email connection verified');
-    
-    // Create email
-    const mailOptions = {
-      from: fromEmail,
-      to: toEmail,
-      subject: 'Your OTP Code - BCA-B Activity Portal',
-      text: `
-BCA-B Activity Portal - Verification Code
-
-Your verification code is: ${otpCode}
-
-This code will expire in 90 seconds.
-
-Please enter this code on the login page to continue.
-
-If you didn't request this code, please ignore this email.
-
----
-Department of Computer Applications
-Christ University
-      `,
-      html: `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OTP Verification</title>
-  <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f5f7fa; }
-    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-    .header { background: linear-gradient(135deg, #3b7dd8 0%, #2a5eb8 100%); color: white; padding: 30px; text-align: center; }
-    .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-    .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
-    .content { padding: 40px; }
-    .otp-box { background: #f0f7ff; border: 2px dashed #3b7dd8; border-radius: 10px; padding: 30px; text-align: center; margin: 30px 0; }
-    .otp-code { font-size: 48px; font-weight: 800; color: #3b7dd8; letter-spacing: 8px; margin: 10px 0; }
-    .info { color: #666; line-height: 1.6; font-size: 15px; }
-    .footer { background: #f8f9fa; padding: 20px; text-align: center; color: #888; font-size: 12px; border-top: 1px solid #eee; }
-    .highlight { color: #3b7dd8; font-weight: 600; }
-    .email-address { background: #f8f9fa; padding: 10px; border-radius: 6px; margin: 10px 0; font-family: monospace; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>🔐 BCA-B Activity Portal</h1>
-      <p>Department of Computer Applications · Christ University</p>
-    </div>
-    
-    <div class="content">
-      <p class="info">Hello,</p>
-      <p class="info">You requested a verification code for the <span class="highlight">3BCA-B Activity Portal</span>.</p>
-      
-      <div class="otp-box">
-        <p style="margin: 0 0 15px; color: #555; font-size: 16px;">Your verification code is:</p>
-        <div class="otp-code">${otpCode}</div>
-        <p style="margin: 15px 0 0; color: #777; font-size: 14px;">⏰ Expires in 90 seconds</p>
-      </div>
-      
-      <p class="info">Enter this code on the login page to complete your verification.</p>
-      
-      <div class="email-address">
-        📧 Sent to: ${toEmail}
-      </div>
-      
-      <p class="info" style="color: #888; font-size: 14px; margin-top: 30px;">
-        <strong>Note:</strong> If you didn't request this code, you can safely ignore this email.
-        For security reasons, please don't share this code with anyone.
-      </p>
-    </div>
-    
-    <div class="footer">
-      <p>This is an automated message from the BCA-B Activity Portal system.</p>
-      <p>© ${new Date().getFullYear()} Department of Computer Applications, Christ University</p>
-    </div>
-  </div>
-</body>
-</html>
-      `
-    };
-    
-    // Send email
-    console.log('📤 Sending OTP email...');
-    const info = await transporter.sendMail(mailOptions);
-    
-    // Log results
-    console.log(`\n✅ REAL OTP SENT SUCCESSFULLY!`);
-    console.log(`✅ To: ${toEmail}`);
-    console.log(`✅ Code: ${otpCode}`);
-    console.log(`✅ Message ID: ${info.messageId}`);
-    
-    if (emailService === 'brevo') {
-      console.log(`✅ Real email sent to inbox via Brevo`);
-      console.log(`📧 Check: ${toEmail} (and spam folder)`);
-    } else if (emailService === 'ethereal') {
-      console.log(`✅ Test email sent via Ethereal`);
-      console.log(`📧 Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
-      console.log(`📧 Note: This is a test email, check console for OTP code`);
-    } else {
-      console.log(`✅ Email sent via ${emailService}`);
-    }
-    
-    return true;
-    
-  } catch (error) {
-    console.error(`\n❌ EMAIL SEND FAILED: ${error.message}`);
-    
-    // In development mode, even if email fails, we can still show OTP in console
-    if (devMode && showOtpInConsole) {
-      console.log(`\n⚠️  EMAIL FAILED BUT SHOWING OTP FOR DEVELOPMENT:`);
-      console.log(`🔑 EMAIL: ${toEmail}`);
-      console.log(`🔑 OTP CODE: ${otpCode}`);
-      console.log(`🔑 USE THIS CODE TO LOGIN: ${otpCode}`);
-      console.log(`⚠️  ================================\n`);
-      return true; // Continue despite email failure in dev mode
-    }
-    
-    // Check if it's a Brevo activation error and fall back to Ethereal
-    if (error.message.includes('not yet activated') || error.message.includes('Authentication')) {
-      console.log(`\n🔄 BREVO ACCOUNT NOT ACTIVATED - FALLING BACK TO ETHEREAL`);
-      console.log(`📧 Attempting to send via Ethereal Email (test service)...`);
-      
-      try {
-        // Fallback to Ethereal
-        const etherealTransporter = nodemailer.createTransport({
-          host: 'smtp.ethereal.email',
-          port: 587,
-          secure: false,
-          auth: {
-            user: 'watlbqiafpbjws7l@ethereal.email',
-            pass: 'eKUKFRytq6vW3bV2ue'
-          }
-        });
-        
-        const fallbackMailOptions = {
-          from: '"BCA-B Portal (TEST)" <test@ethereal.email>',
-          to: toEmail,
-          subject: 'Your OTP Code - BCA-B Activity Portal (TEST)',
-          text: `Your verification code is: ${otpCode}. This code will expire in 90 seconds.`,
-          html: `<div style="font-family: Arial, sans-serif; padding: 20px; background: #f0f7ff; border-radius: 10px;">
-            <h2>🔐 BCA-B Activity Portal</h2>
-            <p>Your verification code is:</p>
-            <div style="background: white; padding: 20px; text-align: center; border-radius: 5px; margin: 10px 0;">
-              <span style="font-size: 24px; font-weight: bold; color: #3b7dd8;">${otpCode}</span>
-            </div>
-            <p><small>This is a test email. In production, check your actual email inbox.</small></p>
-          </div>`
-        };
-        
-        await etherealTransporter.verify();
-        const info = await etherealTransporter.sendMail(fallbackMailOptions);
-        
-        console.log(`✅ FALLBACK EMAIL SENT VIA ETHEREAL!`);
-        console.log(`✅ To: ${toEmail}`);
-        console.log(`✅ Code: ${otpCode}`);
-        console.log(`📧 Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
-        
-        if (devMode && showOtpInConsole) {
-          console.log(`\n🔥 DEVELOPMENT MODE - USE THIS OTP:`);
-          console.log(`🔑 OTP CODE: ${otpCode}`);
-          console.log(`🔥 ================================\n`);
-        }
-        
-        return true;
-        
-      } catch (fallbackError) {
-        console.error(`❌ Fallback email also failed: ${fallbackError.message}`);
-        
-        // Last resort: just show OTP in console if in dev mode
-        if (devMode && showOtpInConsole) {
-          console.log(`\n🆘 EMAIL COMPLETELY FAILED - CONSOLE OTP ONLY:`);
-          console.log(`🔑 EMAIL: ${toEmail}`);
-          console.log(`🔑 OTP CODE: ${otpCode}`);
-          console.log(`🔑 USE THIS CODE TO LOGIN: ${otpCode}`);
-          console.log(`🆘 ================================\n`);
-          return true;
-        }
-        
-        throw fallbackError;
-      }
-    }
-    
-    if (error.message.includes('Authentication')) {
-      console.log(`\n🔑 AUTHENTICATION ERROR:`);
-      console.log(`1. Check SMTP credentials in .env file`);
-      console.log(`2. Verify email service account is active`);
-      console.log(`3. Check daily limits`);
-    }
-    
-    throw error;
-  }
-}
-
 // Cleanup expired OTPs from memory
 function cleanupExpiredStore() {
   const now = Date.now();
@@ -314,11 +33,24 @@ function cleanupExpiredStore() {
   });
 }
 
+// Extract name from email
+function extractNameFromEmail(email) {
+  if (!email) return 'Student';
+  
+  const localPart = email.split('@')[0];
+  const nameParts = localPart.split('.');
+  
+  const firstName = nameParts[0] ? nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1) : '';
+  const lastName = nameParts[1] ? nameParts[1].charAt(0).toUpperCase() + nameParts[1].slice(1) : '';
+  
+  return firstName + (lastName ? ' ' + lastName : '');
+}
+
 // MAIN OTP FUNCTIONS
 
 exports.sendOtp = async (req, res) => {
-  console.log('\n🔄 ===== SEND OTP REQUEST =====');
-  console.log('📥 Request:', req.body);
+  console.log('\n🔄 ===== FIREBASE SEND OTP REQUEST =====');
+  console.log('📥 Request body:', req.body);
   
   try {
     const { email } = req.body;
@@ -342,10 +74,15 @@ exports.sendOtp = async (req, res) => {
     }
 
     // Check recent failed attempts from Supabase
-    const recentFailedAttempts = await db.getRecentFailedAttempts(trimmedEmail);
-    if (recentFailedAttempts >= 5) {
-      lockStore[trimmedEmail] = Date.now() + 2 * 60 * 1000; // Lock for 2 minutes
-      return sendPayload(res, 400, false, 'Too many failed attempts. Your account is locked for 2 minutes.');
+    try {
+      const recentFailedAttempts = await db.getRecentFailedAttempts(trimmedEmail);
+      if (recentFailedAttempts >= 5) {
+        lockStore[trimmedEmail] = Date.now() + 2 * 60 * 1000; // Lock for 2 minutes
+        return sendPayload(res, 400, false, 'Too many failed attempts. Your account is locked for 2 minutes.');
+      }
+    } catch (dbError) {
+      console.warn('[SUPABASE] Error checking failed attempts:', dbError.message);
+      // Continue without database check
     }
 
     // Check cooldown
@@ -379,27 +116,35 @@ exports.sendOtp = async (req, res) => {
       await db.logOtp(trimmedEmail, otp, hashedOtp, 90);
       console.log(`📊 OTP logged to Supabase database`);
     } catch (dbError) {
-      console.error('[SUPABASE] Error logging OTP:', dbError.message);
+      console.warn('[SUPABASE] Error logging OTP:', dbError.message);
       // Continue even if DB logging fails
     }
 
-    // Send REAL email via Brevo
-    await sendRealOtpEmail(trimmedEmail, otp);
+    // Extract name for welcome message
+    const userName = extractNameFromEmail(trimmedEmail);
 
-    return sendPayload(res, 200, true, 'Verification code sent to your email!', {
+    // Send OTP via Firebase
+    console.log(`🔥 Sending Firebase OTP to: ${trimmedEmail}`);
+    await sendOtpEmail(trimmedEmail, otp, userName);
+
+    console.log(`✅ Firebase OTP sent successfully to ${trimmedEmail}`);
+
+    return sendPayload(res, 200, true, `Welcome ${userName}! Verification code sent to your email!`, {
       email: trimmedEmail,
       expiresIn: 90,
-      note: 'Check your email inbox (and spam folder)'
+      userName: userName,
+      message: `Hi ${userName}, your OTP has been sent via Firebase Authentication. Check the backend console for your verification code!`
     });
   } catch (error) {
     console.error('❌ Send OTP error:', error.message);
-    return sendPayload(res, 500, false, `Failed to send code: ${error.message}`);
+    console.error('❌ Stack trace:', error.stack);
+    return sendPayload(res, 500, false, `Failed to send code. Please try again.`);
   }
 };
 
 exports.verifyOtp = async (req, res) => {
-  console.log('\n🔄 ===== VERIFY OTP REQUEST =====');
-  console.log('📥 Request:', req.body);
+  console.log('\n🔄 ===== FIREBASE VERIFY OTP REQUEST =====');
+  console.log('📥 Request body:', req.body);
   
   try {
     const { email, otp } = req.body;
@@ -453,7 +198,7 @@ exports.verifyOtp = async (req, res) => {
       try {
         await db.verifyOtp(trimmedEmail, cleanOtp);
       } catch (dbError) {
-        console.error('[SUPABASE] Error updating failed attempt:', dbError.message);
+        console.warn('[SUPABASE] Error updating failed attempt:', dbError.message);
       }
 
       if (record.attempts >= 5) {
@@ -474,38 +219,41 @@ exports.verifyOtp = async (req, res) => {
     try {
       await db.verifyOtp(trimmedEmail, cleanOtp);
     } catch (dbError) {
-      console.error('[SUPABASE] Error marking OTP as verified:', dbError.message);
+      console.warn('[SUPABASE] Error marking OTP as verified:', dbError.message);
     }
 
     // Create/update user in Supabase (prevents duplicates)
     let user;
+    const userName = extractNameFromEmail(trimmedEmail);
     try {
       user = await db.createOrGetUser(trimmedEmail);
       console.log(`👤 User ${user.full_name} logged in (Login #${user.login_count})`);
       
       // Log successful login activity
       await db.logActivity(user.id, 'login_success', {
-        method: 'otp',
+        method: 'firebase_otp',
         email: trimmedEmail
       });
     } catch (dbError) {
-      console.error('[SUPABASE] Error creating/updating user:', dbError.message);
+      console.warn('[SUPABASE] Error creating/updating user:', dbError.message);
       // Continue even if DB fails
       user = {
         id: 'temp_user',
         email: trimmedEmail,
-        full_name: 'Student',
+        full_name: userName,
         department: 'BCA-B',
         login_count: 1
       };
     }
 
-    console.log(`🎉 OTP VERIFIED SUCCESSFULLY!`);
+    console.log(`🎉 Firebase OTP VERIFIED SUCCESSFULLY!`);
     console.log(`📧 Email: ${trimmedEmail}`);
+    console.log(`👤 User: ${userName}`);
 
-    return sendPayload(res, 200, true, 'Login successful!', {
+    return sendPayload(res, 200, true, `Welcome back, ${userName}! Login successful!`, {
       verified: true,
       email: trimmedEmail,
+      welcomeMessage: `🎉 Welcome to 3BCA-B Activity Portal, ${userName}! Your login was successful.`,
       user: {
         id: user.id,
         name: user.full_name,
@@ -515,12 +263,15 @@ exports.verifyOtp = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Verify OTP error:', error.message);
+    console.error('❌ Stack trace:', error.stack);
     return sendPayload(res, 500, false, 'Verification failed. Please try again.');
   }
 };
 
-// Other functions
+// Resend OTP handler
 exports.resendOtp = async (req, res) => {
+  console.log('\n🔄 ===== FIREBASE RESEND OTP REQUEST =====');
+  
   try {
     const { email } = req.body;
     const trimmedEmail = normalizeEmail(email);
@@ -571,18 +322,21 @@ exports.resendOtp = async (req, res) => {
     try {
       await db.logOtp(trimmedEmail, otp, hashedOtp, 90);
     } catch (dbError) {
-      console.error('[SUPABASE] Error logging resent OTP:', dbError.message);
+      console.warn('[SUPABASE] Error logging resent OTP:', dbError.message);
     }
 
-    await sendRealOtpEmail(trimmedEmail, otp);
+    const userName = extractNameFromEmail(trimmedEmail);
 
-    return sendPayload(res, 200, true, 'New verification code sent!', {
+    await sendOtpEmail(trimmedEmail, otp, userName);
+
+    return sendPayload(res, 200, true, `New verification code sent to ${userName}!`, {
       email: trimmedEmail,
-      expiresIn: 90
+      expiresIn: 90,
+      userName: userName
     });
   } catch (error) {
-    console.error('Resend OTP error:', error.message);
-    return sendPayload(res, 500, false, `Failed to resend code: ${error.message}`);
+    console.error('❌ Resend OTP error:', error.message);
+    return sendPayload(res, 500, false, `Failed to resend code. Please try again.`);
   }
 };
 
@@ -596,16 +350,26 @@ exports.checkEmail = async (req, res) => {
     }
 
     const isValid = isValidChristEmail(trimmedEmail);
-    const exists = await db.userExists(trimmedEmail);
+    let exists = false;
+    
+    try {
+      exists = await db.userExists(trimmedEmail);
+    } catch (dbError) {
+      console.warn('[SUPABASE] Error checking user existence:', dbError.message);
+      // Continue without database check
+    }
+
+    const userName = extractNameFromEmail(trimmedEmail);
 
     return sendPayload(res, 200, true, 'Email check complete', {
       email: trimmedEmail,
       isValid,
       isNewUser: !exists,
-      existsInDb: exists
+      existsInDb: exists,
+      userName: userName
     });
   } catch (error) {
-    console.error('Check email error:', error.message);
+    console.error('❌ Check email error:', error.message);
     return sendPayload(res, 500, false, 'Email check failed.');
   }
 };

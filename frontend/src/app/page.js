@@ -86,7 +86,8 @@ export default function LoginPage() {
     setSendingOtp(true);
 
     try {
-      const res = await fetch("/api/send-otp", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
+      const res = await fetch(`${apiUrl}/api/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: trimmed }),
@@ -120,7 +121,8 @@ export default function LoginPage() {
     const trimmed = gmail.trim().toLowerCase();
 
     try {
-      const res = await fetch("/api/resend-otp", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
+      const res = await fetch(`${apiUrl}/api/resend-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: trimmed }),
@@ -162,7 +164,8 @@ export default function LoginPage() {
     setVerifyingOtp(true);
 
     try {
-      const res = await fetch("/api/verify-otp", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
+      const res = await fetch(`${apiUrl}/api/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: gmail.trim().toLowerCase(), otp: trimmedOtp }),

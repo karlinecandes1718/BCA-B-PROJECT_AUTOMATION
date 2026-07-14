@@ -1,84 +1,167 @@
 const { initializeFirebase } = require('../config/firebase');
+const nodemailer = require('nodemailer');
 
-// Firebase configuration will be loaded from config file
-let firebaseApp = null;
-let auth = null;
+// Gmail SMTP transporter for real email delivery
+let emailTransporter = null;
 
-function buildOtpMessage(toEmail, otpCode) {
+function initializeEmailService() {
+  if (!emailTransporter) {
+    const emailService = process.env.EMAIL_SERVICE || 'gmail';
+    
+    if (emailService === 'gmail') {
+      const gmailUser = process.env.EMAIL_USER;
+      const gmailPass = process.env.EMAIL_PASS;
+      
+      if (!gmailUser || !gmailPass) {
+        console.warn('⚠️ Gmail credentials not configured. Emails will not be sent.');
+        return null;
+      }
+      
+      emailTransporter = nodemailer.createTransporter({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: gmailUser,
+          pass: gmailPass
+        },
+        connectionTimeout: 60000,
+        greetingTimeout: 30000,
+        socketTimeout: 60000,
+      });
+      
+      console.log('✅ Gmail SMTP transporter initialized');
+    }
+  }
+  
+  return emailTransporter;
+}
+
+function buildOtpMessage(toEmail, otpCode, userName = 'Student') {
+  const welcomeText = `Welcome to 3BCA-B Activity Portal, ${userName}!`;
+  
   return {
-    subject: 'Verification Code for 3BCA-B Activity Portal',
-    text: `Your verification code is: ${otpCode}. It expires in 90 seconds. Do not share it with anyone.`,
+    subject: `${welcomeText} Your Verification Code`,
+    text: `
+${welcomeText}
+
+Your verification code is: ${otpCode}
+
+This code will expire in 90 seconds. Please enter it on the login page to access your activity portal.
+
+If you didn't request this code, you can safely ignore this email.
+
+Best regards,
+Department of Computer Applications
+Christ University
+    `,
     html: `
       <div style="font-family: Arial, sans-serif; padding: 25px; color: #1e293b; max-width: 500px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-        <h2 style="color: #3b7dd8; margin-top: 0; margin-bottom: 8px; font-size: 20px; font-weight: 800;">3BCA-B Activity Portal</h2>
+        <h2 style="color: #3b7dd8; margin-top: 0; margin-bottom: 8px; font-size: 20px; font-weight: 800;">🎉 ${welcomeText}</h2>
         <p style="font-size: 12px; color: #64748b; margin-bottom: 24px;">Department of Computer Applications, Christ University</p>
 
-        <p style="font-size: 14px; line-height: 1.5; color: #334155;">Hello,</p>
-        <p style="font-size: 14px; line-height: 1.5; color: #334155;">You requested a login verification code for the Classroom 3BCA-B Activity Log portal.</p>
+        <p style="font-size: 14px; line-height: 1.5; color: #334155;">Hello ${userName},</p>
+        <p style="font-size: 14px; line-height: 1.5; color: #334155;">Welcome to the 3BCA-B Activity Portal! Your verification code is ready.</p>
 
         <div style="background-color: #f0f7ff; border: 1px dashed #3b7dd8; padding: 20px; border-radius: 10px; text-align: center; margin: 24px 0;">
           <span style="font-size: 28px; font-weight: 800; letter-spacing: 6px; color: #3b7dd8;">${otpCode}</span>
         </div>
 
-        <p style="font-size: 13px; color: #64748b; line-height: 1.5;">This verification code is valid for 90 seconds. If you did not request this, you can safely ignore this email.</p>
+        <p style="font-size: 13px; color: #64748b; line-height: 1.5;">This verification code is valid for 90 seconds. Enter it on the login page to access your activity portal.</p>
+        
+        <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="font-size: 13px; color: #475569; margin: 0;"><strong>What you can do:</strong></p>
+          <ul style="font-size: 12px; color: #64748b; margin: 8px 0 0 15px; padding: 0;">
+            <li>View and log workshop activities</li>
+            <li>Track seminar attendance</li>
+            <li>Access guest lecture records</li>
+            <li>Participate in hackathon logs</li>
+          </ul>
+        </div>
+        
         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-        <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 0;">This is an automated institutional message. Please do not reply to this email.</p>
+        <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 0;">This is an automated message from 3BCA-B Activity Portal. Please do not reply to this email.</p>
       </div>
     `,
   };
 }
 
 /**
- * Sends an OTP using Firebase Authentication
+ * Sends an OTP email using Gmail SMTP or shows in console for development
  * @param {string} toEmail - The recipient's email address (Christ University email)
  * @param {string} otpCode - The 6-digit OTP code to send
+ * @param {string} userName - The user's name for personalization
  * @returns {Promise<boolean>} - Resolves to true if successful, rejects on error
  */
-async function sendOtpEmail(toEmail, otpCode) {
+async function sendOtpEmail(toEmail, otpCode, userName = 'Student') {
   try {
-    // Initialize Firebase if not already done
-    const { auth } = initializeFirebase();
-    firebaseApp = firebaseApp || auth.app;
+    const devMode = process.env.DEV_MODE === 'true';
+    const showOtpInConsole = process.env.SHOW_OTP_IN_CONSOLE === 'true';
     
-    // For development mode, always show OTP in console
-    if (process.env.DEV_MODE === 'true' || process.env.SHOW_OTP_IN_CONSOLE === 'true') {
-      console.log('\n🔥 DEVELOPMENT MODE - OTP FOR TESTING:');
+    // Always show OTP in console if enabled (helpful for debugging)
+    if (showOtpInConsole) {
+      console.log('\n🔥 OTP FOR REFERENCE:');
       console.log('🔑 EMAIL:', toEmail);
+      console.log('🔑 USER:', userName);
       console.log('🔑 OTP CODE:', otpCode);
-      console.log('🔑 USE THIS CODE TO LOGIN:', otpCode);
       console.log('🔥 ================================\n');
     }
-
-    // Convert email to phone format for Firebase Auth (simulation)
-    // In a real implementation, you would collect phone numbers
-    // For now, we'll use a simulated approach with email-to-SMS gateway
     
-    const message = buildOtpMessage(toEmail, otpCode);
+    // If in development mode, only show console OTP
+    if (devMode) {
+      console.log('📧 DEVELOPMENT MODE: Not sending real email');
+      return true;
+    }
     
-    // Log successful "email send" for development
-    console.log('📧 ================================');
-    console.log('📧 Firebase OTP Integration Active');
+    // Initialize email service for production
+    const transporter = initializeEmailService();
+    
+    if (!transporter) {
+      throw new Error('Email service not configured. Please set up Gmail SMTP credentials.');
+    }
+    
+    // Verify SMTP connection
+    console.log('🔗 Verifying Gmail SMTP connection...');
+    await transporter.verify();
+    console.log('✅ Gmail SMTP connection verified');
+    
+    // Build personalized email content
+    const message = buildOtpMessage(toEmail, otpCode, userName);
+    
+    const mailOptions = {
+      from: `"3BCA-B Activity Portal" <${process.env.EMAIL_USER}>`,
+      to: toEmail,
+      subject: message.subject,
+      text: message.text,
+      html: message.html,
+    };
+    
+    // Send the actual email
+    console.log(`📤 Sending REAL OTP email to: ${toEmail}`);
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log('✅ REAL EMAIL SENT SUCCESSFULLY!');
     console.log('📧 To:', toEmail);
+    console.log('📧 User:', userName);
     console.log('📧 Code:', otpCode);
-    console.log('📧 Message prepared for Firebase Auth');
-    console.log('📧 ================================');
-
-    // In development, we'll simulate successful sending
-    // In production, you would implement actual Firebase Auth phone verification
-    // or integrate with an email service provider through Firebase Functions
+    console.log('📧 Message ID:', info.messageId);
+    console.log('📧 CHECK YOUR GMAIL INBOX (and spam folder)!');
     
     return true;
     
   } catch (error) {
-    console.error('Firebase OTP Error:', error.message);
+    console.error('❌ Email Send Error:', error.message);
     
-    // Fallback: still show OTP in console for development
-    if (process.env.DEV_MODE === 'true') {
-      console.log('\n🔥 FALLBACK - OTP FOR TESTING:');
+    // Fallback: show OTP in console if email fails
+    if (process.env.SHOW_OTP_IN_CONSOLE === 'true') {
+      console.log('\n🆘 EMAIL FAILED - CONSOLE FALLBACK:');
       console.log('🔑 EMAIL:', toEmail);
+      console.log('🔑 USER:', userName);
       console.log('🔑 OTP CODE:', otpCode);
-      console.log('🔥 ================================\n');
-      return true;
+      console.log('🆘 Use this code to login!');
+      console.log('🆘 ================================\n');
+      return true; // Continue despite email failure
     }
     
     throw error;
