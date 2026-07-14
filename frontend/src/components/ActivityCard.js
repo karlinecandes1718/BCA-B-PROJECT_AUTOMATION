@@ -125,18 +125,18 @@ export default function ActivityCard({ activity, isAdmin, onEdit, onDelete }) {
 
       {/* Delete Confirmation Modal */}
       {showConfirmDelete && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-lg shadow-xl border border-slate-200 max-w-sm w-full overflow-hidden animate-scale-in">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-sm w-full overflow-hidden animate-scale-in">
             <div className="p-6">
-              <h3 className="text-lg font-bold text-[#12203A]">Delete Activity?</h3>
-              <p className="text-sm text-slate-500 mt-2">
-                Are you sure you want to delete <span className="font-semibold text-slate-700">"{activity.title}"</span>? This action is permanent and cannot be undone.
+              <h3 className="text-xl font-bold text-[#12203A] mb-3">Delete from ClassArchive?</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Are you sure you want to permanently remove <strong className="text-slate-800">"{activity.title}"</strong> from ClassArchive? This action cannot be undone.
               </p>
             </div>
-            <div className="bg-slate-50 px-6 py-4 flex items-center justify-end space-x-3 border-t border-slate-100">
+            <div className="bg-gradient-to-r from-slate-50 to-slate-100 px-6 py-4 flex items-center justify-end space-x-3 border-t border-slate-200">
               <button
                 onClick={() => setShowConfirmDelete(false)}
-                className="px-4 py-2 border border-slate-200 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="px-5 py-2.5 border border-slate-300 rounded-xl text-sm font-medium text-slate-600 hover:bg-white hover:border-slate-400 transition-all cursor-pointer touch-manipulation"
               >
                 Cancel
               </button>
@@ -145,9 +145,9 @@ export default function ActivityCard({ activity, isAdmin, onEdit, onDelete }) {
                   setShowConfirmDelete(false);
                   onDelete(activity.id);
                 }}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm cursor-pointer"
+                className="px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer touch-manipulation"
               >
-                Delete
+                Delete Permanently
               </button>
             </div>
           </div>
