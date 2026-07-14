@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
+const { sendOtpEmail } = require('../utils/emailHelper');
 const { db } = require('../utils/supabaseClient');
 
 // In-memory OTP storage (temporary until we move to Redis)

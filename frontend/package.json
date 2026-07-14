@@ -9,10 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@sendinblue/client": "^3.3.1",
+    "firebase": "^10.12.2",
     "lucide-react": "^1.23.0",
     "next": "16.2.10",
-    "nodemailer": "^9.0.3",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
