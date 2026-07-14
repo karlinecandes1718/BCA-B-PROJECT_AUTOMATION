@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import { BookOpen, Shield, Key, AlertCircle, Mail, CheckCircle, RotateCw } from "lucide-react";
+import { BookOpen, Shield, Key, AlertCircle, Mail, CheckCircle, RotateCw, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const { user, loading, login } = useAuth();
@@ -29,6 +29,7 @@ export default function LoginPage() {
   const [adminName, setAdminName] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [adminError, setAdminError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Countdown timer effect
   useEffect(() => {
@@ -240,10 +241,10 @@ export default function LoginPage() {
         </div>
         <div>
           <h1 className="text-3xl font-black text-slate-800 tracking-tight">
-            3BCA-B Activity Log
+            ClassArchive
           </h1>
           <p className="text-xs font-bold text-[#3B7DD8] uppercase tracking-widest mt-1">
-            Department of Computer Applications
+            3BCA-B Activity Portal
           </p>
           <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed mt-2">
             Archiving workshops, guest lectures, seminars and hackathon records.
@@ -461,15 +462,26 @@ export default function LoginPage() {
                       <Key className="h-4 w-4" />
                     </div>
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       id="adminPassword"
                       value={adminPassword}
                       onChange={(e) => setAdminPassword(e.target.value)}
-                      placeholder="••••"
+                      placeholder="••••••••"
                       autoComplete="current-password"
-                      className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-2 focus:ring-[#3B7DD8]/20 transition-all bg-slate-50/50"
+                      className="w-full border border-slate-200 rounded-xl pl-9 pr-10 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-2 focus:ring-[#3B7DD8]/20 transition-all bg-slate-50/50"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-2">
                     Authorized administrators only

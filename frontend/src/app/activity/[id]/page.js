@@ -25,20 +25,41 @@ export default function ActivityDetail() {
   }, [loading, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (!id) return;
+    
+    // Immediate synchronous loading for better performance
     try {
       const stored = localStorage.getItem("bca_activities");
       const all = stored ? JSON.parse(stored) : INITIAL_ACTIVITIES;
-      const a = all.find(x => x.id === id);
-      if (a) { setActivity(a); } else { setFound(false); }
-    } catch { setFound(false); }
+      const foundActivity = all.find(x => x.id === id);
+      
+      if (foundActivity) {
+        setActivity(foundActivity);
+        setFound(true);
+      } else {
+        setFound(false);
+      }
+    } catch (error) {
+      console.error('Error loading activity:', error);
+      setFound(false);
+    }
   }, [id]);
 
-  if (loading || !user) {
+  // Early return with faster loading indicator if activity is loading
+  if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-screen bg-[#F8FAFC]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3B7DD8]"></div>
+        <div className="text-center space-y-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3B7DD8] mx-auto"></div>
+          <p className="text-xs text-slate-500">Loading ClassArchive...</p>
+        </div>
       </div>
     );
+  }
+  
+  if (!user) {
+    router.replace("/");
+    return null;
   }
 
   if (!found || !activity) {
@@ -47,8 +68,8 @@ export default function ActivityDetail() {
         <Navbar />
         <div className="flex-1 flex items-center justify-center p-8 text-center">
           <div className="space-y-4 max-w-sm">
-            <h3 className="text-xl font-bold text-[#0F172A]">Activity Not Found</h3>
-            <p className="text-sm text-slate-500">This log may have been deleted.</p>
+            <h3 className="text-xl font-bold text-[#0F172A]">ClassArchive Activity Not Found</h3>
+            <p className="text-sm text-slate-500">This activity may have been removed from the archive.</p>
             <Link
               href={user.role === "admin" ? "/admin" : "/dashboard"}
               className="inline-flex items-center gap-2 bg-[#3B7DD8] text-white px-4 py-2 rounded-lg text-sm font-semibold"

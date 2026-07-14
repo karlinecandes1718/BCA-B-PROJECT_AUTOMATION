@@ -155,23 +155,23 @@ async function sendOtpEmail(toEmail, otpCode, userName = 'Student') {
     const devMode = process.env.DEV_MODE === 'true';
     const showOtpInConsole = process.env.SHOW_OTP_IN_CONSOLE === 'true';
     
-    console.log('\n📧 ===== SENDING REAL OTP EMAIL =====');
+    console.log('\n📧 ===== ClassArchive OTP DELIVERY =====');
     console.log('📧 To:', toEmail);
     console.log('📧 User:', userName);
     console.log('📧 Code:', otpCode);
     
     // Always show OTP in console for reference
     if (showOtpInConsole) {
-      console.log('\n🔥 OTP FOR REFERENCE:');
+      console.log('\n🔥 ClassArchive OTP:');
       console.log('🔑 EMAIL:', toEmail);
       console.log('🔑 USER:', userName);
       console.log('🔑 OTP CODE:', otpCode);
       console.log('🔥 ================================\n');
     }
     
-    // If in dev mode, only show console
+    // Return immediately in dev mode for instant response
     if (devMode) {
-      console.log('📧 DEVELOPMENT MODE: Only showing console OTP');
+      console.log('📧 DEVELOPMENT MODE: Instant ClassArchive OTP');
       return true;
     }
     
