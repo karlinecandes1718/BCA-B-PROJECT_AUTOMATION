@@ -8,6 +8,7 @@
     "lint": "npm --prefix frontend run lint"
   },
   "dependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "firebase": "^12.16.0"
   }
 }

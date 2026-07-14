@@ -1,8 +1,8 @@
 const fetch = require('node-fetch');
 
-console.log('🎯 TESTING COMPLETE OTP FLOW\n');
+console.log('🎯 TESTING COMPLETE FIREBASE OTP FLOW\n');
 
-const BASE_URL = 'http://localhost:5001/api';
+const BASE_URL = 'http://localhost:5002/api';
 const TEST_EMAIL = 'student.test@bcah.christuniversity.in';
 
 // Step 1: Send OTP
@@ -26,13 +26,13 @@ async function sendOtp() {
 function getOtpFromUser() {
   console.log('\n=== STEP 2: GET OTP CODE ===');
   console.log('📝 In a real scenario, you would:');
-  console.log('1. Check the backend console for the OTP code');
-  console.log('2. Or check your email inbox for the OTP');
+  console.log('1. Check Firebase Auth console for the OTP code');
+  console.log('2. Or check your email/SMS for the OTP');
   console.log('3. Enter the OTP code in the frontend');
   
-  // For testing, we'll simulate getting OTP from backend logs
+  // For testing, we'll simulate getting OTP from Firebase logs
   console.log('💡 For this test, use the OTP shown in the backend console above');
-  return '875627'; // This would be the actual OTP from the backend
+  return '123456'; // This would be the actual OTP from Firebase
 }
 
 // Step 3: Verify OTP
@@ -100,9 +100,9 @@ async function runTest() {
     console.log('🎉 COMPLETE OTP FLOW WORKING!');
     console.log('✅ All steps completed successfully');
     console.log('\n📋 NEXT STEPS:');
-    console.log('1. Open http://localhost:3001 in your browser');
+    console.log('1. Open http://localhost:3000 in your browser');
     console.log('2. Enter any @bcah.christuniversity.in email');
-    console.log('3. Check backend console for OTP code');
+    console.log('3. Check Firebase Auth console or backend console for OTP code');
     console.log('4. Enter the OTP to login');
     console.log('5. You should be redirected to the dashboard');
   } else {

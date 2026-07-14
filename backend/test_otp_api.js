@@ -1,8 +1,8 @@
 const fetch = require('node-fetch');
 
-console.log('🧪 TESTING OTP API ENDPOINTS\n');
+console.log('🧪 TESTING FIREBASE OTP API ENDPOINTS\n');
 
-const BASE_URL = 'http://localhost:5001/api';
+const BASE_URL = 'http://localhost:5002/api';
 const TEST_EMAIL = 'test.student@bcah.christuniversity.in';
 
 async function testSendOtp() {
@@ -118,16 +118,17 @@ async function runApiTests() {
   
   if (sendOtpOk && verifyOtpOk && checkEmailOk) {
     console.log('\n🎉 ALL API ENDPOINTS WORKING!');
-    console.log('✅ Ready for full OTP testing');
+    console.log('✅ Ready for full Firebase OTP testing');
     console.log('\n📝 TO TEST WITH REAL EMAIL:');
-    console.log('1. Open: http://localhost:3001');
+    console.log('1. Open: http://localhost:3000');
     console.log('2. Enter your @bcah.christuniversity.in email');
-    console.log('3. Check backend console for OTP code');
-    console.log('4. Check your email inbox for the OTP');
+    console.log('3. Check Firebase Auth console for OTP verification');
+    console.log('4. Check your email/SMS for the OTP');
     console.log('5. Enter the code to complete login');
   } else {
     console.log('\n⚠️  SOME API ENDPOINTS FAILED');
     console.log('Please check the backend server logs');
+    console.log('Ensure Firebase is properly configured');
   }
 }
 
