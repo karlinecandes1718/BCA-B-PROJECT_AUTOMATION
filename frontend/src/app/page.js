@@ -225,39 +225,50 @@ export default function LoginPage() {
   return (
     <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 min-h-screen bg-gradient-to-br from-[#E0F2FE] via-[#F0F7FF] to-[#EFF6FF] relative overflow-hidden">
       
-      {/* Decorative Orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-300/30 blur-[120px] pointer-events-none animate-pulse duration-10000"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-sky-300/25 blur-[120px] pointer-events-none"></div>
+      {/* Enhanced Decorative Elements */}
+      <div className="absolute top-[-15%] left-[-15%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-blue-300/40 to-sky-300/30 blur-[150px] pointer-events-none animate-pulse"></div>
+      <div className="absolute bottom-[-15%] right-[-15%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-sky-300/30 to-blue-400/25 blur-[150px] pointer-events-none animate-pulse delay-1000"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] rounded-full bg-gradient-to-r from-purple-200/20 to-pink-200/20 blur-[120px] pointer-events-none"></div>
 
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 pointer-events-none"></div>
+      {/* Floating Particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[20%] left-[10%] w-2 h-2 bg-blue-400/60 rounded-full animate-ping"></div>
+        <div className="absolute top-[60%] right-[15%] w-3 h-3 bg-sky-300/50 rounded-full animate-pulse delay-500"></div>
+        <div className="absolute bottom-[30%] left-[20%] w-2 h-2 bg-purple-400/40 rounded-full animate-ping delay-1000"></div>
+        <div className="absolute top-[40%] right-[25%] w-1 h-1 bg-blue-500/60 rounded-full animate-pulse delay-700"></div>
+      </div>
 
-      {/* Content Container */}
-      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md text-center space-y-4 mb-8">
+      {/* Enhanced Grid Pattern Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none"></div>
+
+      {/* Content Container with Enhanced Mobile Support */}
+      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md text-center space-y-6 mb-8 px-2">
         <div className="flex justify-center">
-          <div className="bg-[#3B7DD8] p-3 rounded-2xl shadow-md text-white border border-white/20 hover:scale-105 transition-transform duration-300">
-            <BookOpen className="h-8 w-8" />
+          <div className="bg-gradient-to-br from-[#3B7DD8] to-[#2563EB] p-4 rounded-3xl shadow-xl text-white border border-white/30 hover:scale-105 transition-all duration-500 hover:shadow-2xl">
+            <BookOpen className="h-10 w-10 md:h-8 md:w-8" />
           </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-black text-slate-800 tracking-tight">
+        <div className="space-y-3">
+          <h1 className="text-4xl md:text-3xl font-black text-slate-800 tracking-tight bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text">
             ClassArchive
           </h1>
-          <p className="text-xs font-bold text-[#3B7DD8] uppercase tracking-widest mt-1">
-            3BCA-B Activity Portal
-          </p>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed mt-2">
-            Archiving workshops, guest lectures, seminars and hackathon records.
+          <div className="bg-gradient-to-r from-[#3B7DD8] to-[#2563EB] bg-clip-text text-transparent">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] mt-2">
+              3BCA-B Activity Portal
+            </p>
+          </div>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed mt-4 px-4">
+            Your comprehensive archive for workshops, guest lectures, seminars and hackathon records.
           </p>
         </div>
       </div>
 
-      {/* Card Wrapper */}
-      <div className="relative z-10 sm:mx-auto w-full sm:max-w-md">
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/50 overflow-hidden">
+      {/* Enhanced Card Wrapper with Mobile Optimization */}
+      <div className="relative z-10 sm:mx-auto w-full max-w-md mx-auto px-4 sm:px-0">
+        <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/60 overflow-hidden hover:shadow-3xl transition-all duration-500 hover:border-white/80">
           
-          {/* Tab Selection */}
-          <div className="flex border-b border-slate-100 bg-slate-50/50">
+          {/* Enhanced Tab Selection with Mobile Touch Targets */}
+          <div className="flex border-b border-slate-100 bg-gradient-to-r from-slate-50/80 to-slate-100/60 backdrop-blur-sm">
             <button
               type="button"
               onClick={() => {
@@ -266,13 +277,15 @@ export default function LoginPage() {
                 setStudentError("");
                 setSuccessMessage("");
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-4 text-xs font-extrabold tracking-wider uppercase transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-2 py-5 md:py-4 text-xs font-extrabold tracking-wider uppercase transition-all duration-300 cursor-pointer touch-manipulation ${
                 activeTab === "student"
-                  ? "bg-[#3B7DD8] text-white"
-                  : "text-slate-500 hover:bg-blue-50/50"
+                  ? "bg-gradient-to-r from-[#3B7DD8] to-[#2563EB] text-white shadow-lg"
+                  : "text-slate-500 hover:bg-blue-50/70 hover:text-[#3B7DD8]"
               }`}
             >
-              <Mail className="h-4 w-4" /> Student Portal
+              <Mail className="h-4 w-4" /> 
+              <span className="hidden xs:inline">Student</span>
+              <span className="xs:hidden">Student</span>
             </button>
             <button
               type="button"
@@ -281,17 +294,19 @@ export default function LoginPage() {
                 setStudentError("");
                 setSuccessMessage("");
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-4 text-xs font-extrabold tracking-wider uppercase transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-2 py-5 md:py-4 text-xs font-extrabold tracking-wider uppercase transition-all duration-300 cursor-pointer touch-manipulation ${
                 activeTab === "admin"
-                  ? "bg-[#3B7DD8] text-white"
-                  : "text-slate-500 hover:bg-blue-50/50"
+                  ? "bg-gradient-to-r from-[#3B7DD8] to-[#2563EB] text-white shadow-lg"
+                  : "text-slate-500 hover:bg-blue-50/70 hover:text-[#3B7DD8]"
               }`}
             >
-              <Shield className="h-4 w-4" /> Admin Portal
+              <Shield className="h-4 w-4" /> 
+              <span className="hidden xs:inline">Admin</span>
+              <span className="xs:hidden">Admin</span>
             </button>
           </div>
 
-          <div className="p-6 sm:p-8 space-y-6">
+          <div className="p-8 sm:p-8 space-y-6 bg-gradient-to-b from-white/50 to-white/80 backdrop-blur-sm">
 
             {/* ── STUDENT LOGIN FLOW ── */}
             {activeTab === "student" && (
@@ -327,9 +342,9 @@ export default function LoginPage() {
                           id="studentGmail"
                           value={gmail}
                           onChange={(e) => setGmail(e.target.value)}
-                          placeholder="e.g. student.name@christuniversity.in"
+                          placeholder="e.g. student.name@university.in"
                           autoComplete="email"
-                          className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-2 focus:ring-[#3B7DD8]/20 transition-all bg-slate-50/50"
+                          className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-3.5 md:py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-2 focus:ring-[#3B7DD8]/20 transition-all bg-slate-50/50 hover:bg-white touch-manipulation"
                           required
                         />
                       </div>
@@ -341,7 +356,7 @@ export default function LoginPage() {
                     <button
                       type="submit"
                       disabled={sendingOtp}
-                      className="w-full bg-[#3B7DD8] hover:bg-[#3B7DD8]/90 text-white py-3 px-4 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full bg-gradient-to-r from-[#3B7DD8] to-[#2563EB] hover:from-[#2563EB] hover:to-[#1D4ED8] text-white py-4 md:py-3 px-4 rounded-2xl text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer flex items-center justify-center gap-2 touch-manipulation hover:scale-[1.02] active:scale-[0.98]"
                     >
                       {sendingOtp ? (
                         <>
@@ -372,7 +387,7 @@ export default function LoginPage() {
                           placeholder="Enter 6-digit code"
                           maxLength={6}
                           autoComplete="one-time-code"
-                          className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-2 focus:ring-[#3B7DD8]/20 transition-all bg-slate-50/50 text-center tracking-widest font-mono font-bold"
+                          className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-3.5 md:py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-2 focus:ring-[#3B7DD8]/20 transition-all bg-slate-50/50 text-center tracking-widest font-mono font-bold hover:bg-white touch-manipulation"
                           required
                         />
                       </div>
@@ -395,10 +410,10 @@ export default function LoginPage() {
                         type="button"
                         onClick={handleResendOtp}
                         disabled={resendCooldown > 0 || sendingOtp}
-                        className={`flex-1 border border-slate-200 text-xs font-bold tracking-wide uppercase py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                        className={`flex-1 border border-slate-200 text-xs font-bold tracking-wide uppercase py-4 md:py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 touch-manipulation ${
                           resendCooldown > 0 || sendingOtp
                             ? "bg-slate-50 text-slate-400 cursor-not-allowed"
-                            : "hover:bg-slate-50 text-slate-600 cursor-pointer"
+                            : "hover:bg-slate-50 hover:border-slate-300 text-slate-600 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                         }`}
                       >
                         <RotateCw className={`h-3.5 w-3.5 ${sendingOtp ? "animate-spin" : ""}`} />
@@ -407,7 +422,7 @@ export default function LoginPage() {
                       <button
                         type="submit"
                         disabled={verifyingOtp}
-                        className="flex-1 bg-[#3B7DD8] hover:bg-[#3B7DD8]/90 text-white py-3 px-4 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                        className="flex-1 bg-gradient-to-r from-[#3B7DD8] to-[#2563EB] hover:from-[#2563EB] hover:to-[#1D4ED8] text-white py-4 md:py-3 px-4 rounded-xl text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer flex items-center justify-center gap-2 touch-manipulation hover:scale-[1.02] active:scale-[0.98]"
                       >
                         {verifyingOtp ? (
                           <>
@@ -448,7 +463,7 @@ export default function LoginPage() {
                       onChange={(e) => setAdminName(e.target.value)}
                       placeholder="Enter your name"
                       autoComplete="off"
-                      className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-2 focus:ring-[#3B7DD8]/20 transition-all bg-slate-50/50"
+                      className="w-full border border-slate-200 rounded-xl pl-9 pr-3 py-3.5 md:py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-2 focus:ring-[#3B7DD8]/20 transition-all bg-slate-50/50 hover:bg-white touch-manipulation"
                       required
                     />
                   </div>
@@ -468,13 +483,13 @@ export default function LoginPage() {
                       onChange={(e) => setAdminPassword(e.target.value)}
                       placeholder="••••••••"
                       autoComplete="current-password"
-                      className="w-full border border-slate-200 rounded-xl pl-9 pr-10 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-2 focus:ring-[#3B7DD8]/20 transition-all bg-slate-50/50"
+                      className="w-full border border-slate-200 rounded-xl pl-9 pr-10 py-3.5 md:py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#3B7DD8] focus:ring-2 focus:ring-[#3B7DD8]/20 transition-all bg-slate-50/50 hover:bg-white touch-manipulation"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors touch-manipulation"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -489,7 +504,7 @@ export default function LoginPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-[#3B7DD8] hover:bg-[#3B7DD8]/90 text-white py-3 px-4 rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
+                  className="w-full bg-gradient-to-r from-[#3B7DD8] to-[#2563EB] hover:from-[#2563EB] hover:to-[#1D4ED8] text-white py-4 md:py-3 px-4 rounded-2xl text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer touch-manipulation hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Sign In as Administrator
                 </button>

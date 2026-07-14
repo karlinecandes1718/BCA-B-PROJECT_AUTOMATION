@@ -93,9 +93,9 @@ export default function AdminDashboard() {
               <Shield className="h-4 w-4" />
               <span>Administrator Control Dashboard</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A]">3BCA-B Records Panel</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A]">ClassArchive Admin Panel</h2>
             <p className="text-xs text-slate-500 mt-1 max-w-xl leading-relaxed">
-              Logged in as <span className="font-bold text-slate-700">{user.identifier}</span>. Create, edit, or remove activity logs.
+              Logged in as <span className="font-bold text-slate-700">{user.identifier}</span>. Manage ClassArchive activity records and content.
             </p>
           </div>
           <button

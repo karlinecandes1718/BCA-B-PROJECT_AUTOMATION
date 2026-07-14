@@ -34,17 +34,17 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
 
-            {/* Branding */}
+            {/* ClassArchive Branding */}
             <Link
               href={user.role === "admin" ? "/admin" : "/dashboard"}
-              className="flex items-center space-x-3 hover:opacity-90 transition-opacity"
+              className="flex items-center space-x-3 hover:opacity-90 transition-opacity group"
             >
-              <div className="bg-white/10 p-2 rounded-md">
+              <div className="bg-white/15 p-2.5 rounded-xl group-hover:bg-white/20 transition-colors">
                 <BookOpen className="h-6 w-6 text-white" />
               </div>
               <div>
-                <span className="font-bold text-lg tracking-wide block leading-none">3BCA-B</span>
-                <span className="text-xs text-slate-200 font-medium">Activity Portal</span>
+                <span className="font-black text-lg tracking-wide block leading-none">ClassArchive</span>
+                <span className="text-xs text-blue-100 font-medium uppercase tracking-wider">3BCA-B Portal</span>
               </div>
             </Link>
 
