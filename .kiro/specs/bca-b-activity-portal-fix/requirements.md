@@ -31,7 +31,7 @@ This requirements document outlines the necessary fixes and comprehensive testin
 
 1. WHEN the correct Brevo SMTP key is configured, THE Email_Service SHALL successfully send OTP emails to Christ University email addresses
 2. WHEN an email fails to send, THE System SHALL log detailed error information and provide helpful troubleshooting guidance
-3. WHEN sending an OTP email, THE System SHALL use the properly configured Brevo SMTP key from environment variables
+3. WHEN sending an OTP email, THE System SHALL use the provided Brevo key: xsmtpsib-fb2704b78c00316a56cf67e99a1257f4700288ef82116a8ab09e4c7cd55605ad-1y4xxnrr87xC3LDW
 4. WHEN configuring email services, THE System SHALL fall back to Ethereal testing service if production services fail
 5. FOR ALL valid Christ University email addresses, OTP delivery success rate SHALL be 100% when credentials are correct
 

@@ -110,18 +110,18 @@ exports.sendOtp = async (req, res) => {
     
     console.log(`🔐 Generated OTP: ${otp}`);
 
-    // Store OTP in memory (temporary) - EXACTLY 30 seconds
+    // Store OTP in memory (temporary)
     otpStore[trimmedEmail] = {
       hashedOtp,
-      expiresAt: now + 30 * 1000, // EXACTLY 30 seconds
+      expiresAt: now + 30 * 1000, // 30 seconds
       lastSentAt: now,
       attempts: 0,
     };
 
     // Log OTP to Supabase database
     try {
-      await db.logOtp(trimmedEmail, otp, hashedOtp, 30); // EXACTLY 30 seconds
-      console.log(`📊 OTP logged to Supabase database - expires in 30s`);
+      await db.logOtp(trimmedEmail, otp, hashedOtp, 30); // 30 seconds
+      console.log(`📊 OTP logged to Supabase database`);
     } catch (dbError) {
       console.warn('[SUPABASE] Error logging OTP:', dbError.message);
       // Continue even if DB logging fails
@@ -136,12 +136,11 @@ exports.sendOtp = async (req, res) => {
 
     console.log(`✅ Firebase OTP sent successfully to ${trimmedEmail}`);
 
-    return sendPayload(res, 200, true, `Welcome ${userName}! Verification code sent instantly!`, {
+    return sendPayload(res, 200, true, `Welcome ${userName}! Verification code sent to your email!`, {
       email: trimmedEmail,
-      expiresIn: 30, // EXACTLY 30 seconds
+      expiresIn: 30, // 30 seconds
       userName: userName,
-      message: `Hi ${userName}, your ClassArchive OTP has been sent! Check your email and the console for instant access.`,
-      instantDelivery: true
+      message: `Hi ${userName}, your OTP has been sent via Firebase Authentication. Check the backend console for your verification code!`
     });
   } catch (error) {
     console.error('❌ Send OTP error:', error.message);
@@ -321,14 +320,14 @@ exports.resendOtp = async (req, res) => {
 
     otpStore[trimmedEmail] = {
       hashedOtp,
-      expiresAt: now + 30 * 1000, // EXACTLY 30 seconds
+      expiresAt: now + 30 * 1000, // 30 seconds
       lastSentAt: now,
       attempts: 0,
     };
 
     // Log to Supabase
     try {
-      await db.logOtp(trimmedEmail, otp, hashedOtp, 30); // EXACTLY 30 seconds
+      await db.logOtp(trimmedEmail, otp, hashedOtp, 30); // 30 seconds
     } catch (dbError) {
       console.warn('[SUPABASE] Error logging resent OTP:', dbError.message);
     }
@@ -337,11 +336,10 @@ exports.resendOtp = async (req, res) => {
 
     await sendOtpEmail(trimmedEmail, otp, userName);
 
-    return sendPayload(res, 200, true, `New ClassArchive code sent to ${userName}!`, {
+    return sendPayload(res, 200, true, `New verification code sent to ${userName}!`, {
       email: trimmedEmail,
-      expiresIn: 30, // EXACTLY 30 seconds
-      userName: userName,
-      instantDelivery: true
+      expiresIn: 30, // 30 seconds
+      userName: userName
     });
   } catch (error) {
     console.error('❌ Resend OTP error:', error.message);

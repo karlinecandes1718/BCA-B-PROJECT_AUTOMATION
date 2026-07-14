@@ -125,4 +125,4 @@ Your classmates can always use the console OTP while you fix email delivery!
 
 ---
 
-**🚨 Try the personal Gmail fix first - it's the fastest way to get real emails working!**
+**🚨 Try the personal Gmail fix first - it's the fastest way to get real emails working!** 
