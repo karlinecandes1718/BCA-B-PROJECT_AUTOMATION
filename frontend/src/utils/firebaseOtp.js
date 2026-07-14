@@ -64,7 +64,7 @@ export const verifyPhoneOTP = async (confirmationResult, otpCode) => {
  */
 export const sendEmailOTP = async (email) => {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5003';
     const response = await fetch(`${apiUrl}/api/send-otp`, {
       method: 'POST',
       headers: {
@@ -91,7 +91,7 @@ export const sendEmailOTP = async (email) => {
  */
 export const verifyEmailOTP = async (email, otpCode) => {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5003';
     const response = await fetch(`${apiUrl}/api/verify-otp`, {
       method: 'POST',
       headers: {

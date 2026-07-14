@@ -1,4 +1,3 @@
-const bcrypt = require('bcrypt');
 const { sendOtpEmail } = require('../utils/emailHelper');
 const { db } = require('../utils/supabaseClient');
 
@@ -106,13 +105,12 @@ exports.sendOtp = async (req, res) => {
 
     // Generate OTP
     const otp = String(Math.floor(100000 + Math.random() * 900000));
-    const hashedOtp = await bcrypt.hash(otp, 10);
     
     console.log(`🔐 Generated OTP: ${otp}`);
 
     // Store OTP in memory (temporary)
     otpStore[trimmedEmail] = {
-      hashedOtp,
+      otp: otp, // Store plain OTP since it's temporary and short-lived
       expiresAt: now + 30 * 1000, // 30 seconds
       lastSentAt: now,
       attempts: 0,
@@ -198,7 +196,7 @@ exports.verifyOtp = async (req, res) => {
     record.attempts += 1;
 
     // Verify OTP
-    const isMatch = await bcrypt.compare(cleanOtp, record.hashedOtp);
+    const isMatch = (cleanOtp === record.otp);
 
     if (!isMatch) {
       // Update failed attempt in Supabase
