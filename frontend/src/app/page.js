@@ -80,7 +80,7 @@ export default function LoginPage() {
     // Frontend validation: email ends with @bcah.christuniversity.in
     const christEmailRegex = /^[a-zA-Z0-9._%+-]+@bcah\.christuniversity\.in$/i;
     if (!christEmailRegex.test(trimmed)) {
-      setStudentError("Please use your Christ University email ID (@bcah.christuniversity.in).");
+      setStudentError("Please use your official university email ID.");
       return;
     }
 
@@ -316,7 +316,7 @@ export default function LoginPage() {
                   <form onSubmit={handleSendOtp} className="space-y-4">
                     <div>
                       <label htmlFor="studentGmail" className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                        Christ Gmail ID
+                        University Email ID
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -334,7 +334,7 @@ export default function LoginPage() {
                         />
                       </div>
                       <p className="text-[10px] text-slate-400 mt-2 leading-normal">
-                        Enter your official Christ University email. A verification code will be sent.
+                        Enter your official university email. A verification code will be sent.
                       </p>
                     </div>
 

@@ -68,7 +68,7 @@ exports.sendOtp = async (req, res) => {
     }
 
     if (!isValidChristEmail(trimmedEmail)) {
-      return sendPayload(res, 400, false, 'Please use your Christ University email ID (@bcah.christuniversity.in).');
+      return sendPayload(res, 400, false, 'Please use your official university email ID.');
     }
 
     cleanupExpiredStore();
@@ -163,7 +163,7 @@ exports.verifyOtp = async (req, res) => {
     }
 
     if (!isValidChristEmail(trimmedEmail)) {
-      return sendPayload(res, 400, false, 'Please use your Christ University email ID (@bcah.christuniversity.in).');
+      return sendPayload(res, 400, false, 'Please use your official university email ID.');
     }
 
     if (!cleanOtp) {
@@ -288,7 +288,7 @@ exports.resendOtp = async (req, res) => {
     }
 
     if (!isValidChristEmail(trimmedEmail)) {
-      return sendPayload(res, 400, false, 'Please use your Christ University email ID (@bcah.christuniversity.in).');
+      return sendPayload(res, 400, false, 'Please use your official university email ID.');
     }
 
     cleanupExpiredStore();
