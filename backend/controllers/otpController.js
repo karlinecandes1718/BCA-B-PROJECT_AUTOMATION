@@ -106,14 +106,14 @@ exports.sendOtp = async (req, res) => {
     // Store OTP in memory (temporary)
     otpStore[trimmedEmail] = {
       hashedOtp,
-      expiresAt: now + 90 * 1000,
+      expiresAt: now + 30 * 1000, // 30 seconds
       lastSentAt: now,
       attempts: 0,
     };
 
     // Log OTP to Supabase database
     try {
-      await db.logOtp(trimmedEmail, otp, hashedOtp, 90);
+      await db.logOtp(trimmedEmail, otp, hashedOtp, 30); // 30 seconds
       console.log(`📊 OTP logged to Supabase database`);
     } catch (dbError) {
       console.warn('[SUPABASE] Error logging OTP:', dbError.message);
@@ -123,15 +123,15 @@ exports.sendOtp = async (req, res) => {
     // Extract name for welcome message
     const userName = extractNameFromEmail(trimmedEmail);
 
-    // Send OTP via Firebase
-    console.log(`🔥 Sending Firebase OTP to: ${trimmedEmail}`);
+    // Send OTP via Gmail SMTP (REAL EMAIL)
+    console.log(`📧 Sending REAL Gmail OTP to: ${trimmedEmail}`);
     await sendOtpEmail(trimmedEmail, otp, userName);
 
     console.log(`✅ Firebase OTP sent successfully to ${trimmedEmail}`);
 
     return sendPayload(res, 200, true, `Welcome ${userName}! Verification code sent to your email!`, {
       email: trimmedEmail,
-      expiresIn: 90,
+      expiresIn: 30, // 30 seconds
       userName: userName,
       message: `Hi ${userName}, your OTP has been sent via Firebase Authentication. Check the backend console for your verification code!`
     });
@@ -313,14 +313,14 @@ exports.resendOtp = async (req, res) => {
 
     otpStore[trimmedEmail] = {
       hashedOtp,
-      expiresAt: now + 90 * 1000,
+      expiresAt: now + 30 * 1000, // 30 seconds
       lastSentAt: now,
       attempts: 0,
     };
 
     // Log to Supabase
     try {
-      await db.logOtp(trimmedEmail, otp, hashedOtp, 90);
+      await db.logOtp(trimmedEmail, otp, hashedOtp, 30); // 30 seconds
     } catch (dbError) {
       console.warn('[SUPABASE] Error logging resent OTP:', dbError.message);
     }
@@ -331,7 +331,7 @@ exports.resendOtp = async (req, res) => {
 
     return sendPayload(res, 200, true, `New verification code sent to ${userName}!`, {
       email: trimmedEmail,
-      expiresIn: 90,
+      expiresIn: 30, // 30 seconds
       userName: userName
     });
   } catch (error) {

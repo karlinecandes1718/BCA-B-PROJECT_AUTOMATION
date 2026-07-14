@@ -22,7 +22,7 @@ export default function LoginPage() {
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   
-  // 90-second Resend Cooldown Countdown state
+  // 30-second Resend Cooldown Countdown state
   const [resendCooldown, setResendCooldown] = useState(0);
 
   // Admin form state
@@ -97,7 +97,7 @@ export default function LoginPage() {
 
       if (res.ok && data.success) {
         setOtpStep(2);
-        setResendCooldown(90); // Start 90 seconds countdown
+        setResendCooldown(30); // Start 30 seconds countdown
         setSuccessMessage(data.message || "Verification code sent to your Christ email.");
       } else {
         setStudentError(data.error || data.message || "Failed to send verification code.");
@@ -131,7 +131,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setResendCooldown(90); // Reset 90 seconds countdown
+        setResendCooldown(30); // Reset 30 seconds countdown
         setSuccessMessage(data.message || "A new verification code has been sent.");
       } else {
         setStudentError(data.error || data.message || "Failed to resend verification code.");
@@ -191,9 +191,32 @@ export default function LoginPage() {
   const handleAdminSubmit = (e) => {
     e.preventDefault();
     setAdminError("");
-    if (!adminName.trim()) { setAdminError("Name is required."); return; }
-    if (!adminPassword) { setAdminError("Password is required."); return; }
-    if (adminPassword !== "0987") { setAdminError("Invalid administrator security code."); return; }
+    
+    if (!adminName.trim()) { 
+      setAdminError("Name is required."); 
+      return; 
+    }
+    
+    if (!adminPassword) { 
+      setAdminError("Security code is required."); 
+      return; 
+    }
+    
+    // Validate admin name (case-insensitive)
+    const validAdmins = ["shruthika", "karline", "deepanshu"];
+    const normalizedName = adminName.trim().toLowerCase();
+    
+    if (!validAdmins.includes(normalizedName)) {
+      setAdminError("Access denied. You are not authorized to access the admin portal.");
+      return;
+    }
+    
+    // Validate password
+    if (adminPassword !== "CHRIST@0987") { 
+      setAdminError("Invalid security code."); 
+      return; 
+    }
+    
     login("admin", `Admin ${adminName.trim()}`);
     router.replace("/admin");
   };
@@ -449,7 +472,7 @@ export default function LoginPage() {
                     />
                   </div>
                   <p className="text-[10px] text-slate-400 mt-2">
-                    Default code: <code className="bg-slate-100 px-1.5 py-0.5 rounded font-mono font-bold text-slate-700">0987</code>
+                    Authorized administrators only
                   </p>
                 </div>
                 <button

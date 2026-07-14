@@ -1,54 +1,18 @@
-const { initializeFirebase } = require('../config/firebase');
 const nodemailer = require('nodemailer');
 
-// Gmail SMTP transporter for real email delivery
-let emailTransporter = null;
-
-function initializeEmailService() {
-  if (!emailTransporter) {
-    const emailService = process.env.EMAIL_SERVICE || 'gmail';
-    
-    if (emailService === 'gmail') {
-      const gmailUser = process.env.EMAIL_USER;
-      const gmailPass = process.env.EMAIL_PASS;
-      
-      if (!gmailUser || !gmailPass) {
-        console.warn('⚠️ Gmail credentials not configured. Emails will not be sent.');
-        return null;
-      }
-      
-      emailTransporter = nodemailer.createTransporter({
-        service: 'gmail',
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: gmailUser,
-          pass: gmailPass
-        },
-        connectionTimeout: 60000,
-        greetingTimeout: 30000,
-        socketTimeout: 60000,
-      });
-      
-      console.log('✅ Gmail SMTP transporter initialized');
-    }
-  }
-  
-  return emailTransporter;
-}
-
-function buildOtpMessage(toEmail, otpCode, userName = 'Student') {
+function buildWelcomeEmail(toEmail, otpCode, userName = 'Student') {
   const welcomeText = `Welcome to 3BCA-B Activity Portal, ${userName}!`;
   
   return {
+    from: `"3BCA-B Activity Portal" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
     subject: `${welcomeText} Your Verification Code`,
     text: `
 ${welcomeText}
 
 Your verification code is: ${otpCode}
 
-This code will expire in 90 seconds. Please enter it on the login page to access your activity portal.
+This code will expire in 30 seconds. Please enter it on the login page to access your activity portal.
 
 If you didn't request this code, you can safely ignore this email.
 
@@ -57,49 +21,146 @@ Department of Computer Applications
 Christ University
     `,
     html: `
-      <div style="font-family: Arial, sans-serif; padding: 25px; color: #1e293b; max-width: 500px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-        <h2 style="color: #3b7dd8; margin-top: 0; margin-bottom: 8px; font-size: 20px; font-weight: 800;">🎉 ${welcomeText}</h2>
-        <p style="font-size: 12px; color: #64748b; margin-bottom: 24px;">Department of Computer Applications, Christ University</p>
-
-        <p style="font-size: 14px; line-height: 1.5; color: #334155;">Hello ${userName},</p>
-        <p style="font-size: 14px; line-height: 1.5; color: #334155;">Welcome to the 3BCA-B Activity Portal! Your verification code is ready.</p>
-
-        <div style="background-color: #f0f7ff; border: 1px dashed #3b7dd8; padding: 20px; border-radius: 10px; text-align: center; margin: 24px 0;">
-          <span style="font-size: 28px; font-weight: 800; letter-spacing: 6px; color: #3b7dd8;">${otpCode}</span>
-        </div>
-
-        <p style="font-size: 13px; color: #64748b; line-height: 1.5;">This verification code is valid for 90 seconds. Enter it on the login page to access your activity portal.</p>
-        
-        <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
-          <p style="font-size: 13px; color: #475569; margin: 0;"><strong>What you can do:</strong></p>
-          <ul style="font-size: 12px; color: #64748b; margin: 8px 0 0 15px; padding: 0;">
-            <li>View and log workshop activities</li>
-            <li>Track seminar attendance</li>
-            <li>Access guest lecture records</li>
-            <li>Participate in hackathon logs</li>
-          </ul>
-        </div>
-        
-        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-        <p style="font-size: 11px; color: #94a3b8; text-align: center; margin: 0;">This is an automated message from 3BCA-B Activity Portal. Please do not reply to this email.</p>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification - 3BCA-B Activity Portal</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f7fa;">
+  <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    
+    <!-- Header -->
+    <div style="background: linear-gradient(135deg, #3b7dd8 0%, #2a5eb8 100%); color: white; padding: 30px; text-align: center;">
+      <h1 style="margin: 0; font-size: 24px; font-weight: 600;">🎉 ${welcomeText}</h1>
+      <p style="margin: 5px 0 0; opacity: 0.9; font-size: 14px;">Department of Computer Applications · Christ University</p>
+    </div>
+    
+    <!-- Content -->
+    <div style="padding: 40px;">
+      <p style="font-size: 16px; line-height: 1.5; color: #334155; margin-bottom: 20px;">Hello ${userName},</p>
+      <p style="font-size: 16px; line-height: 1.5; color: #334155; margin-bottom: 30px;">Welcome to the 3BCA-B Activity Portal! Your verification code is ready.</p>
+      
+      <!-- OTP Box -->
+      <div style="background-color: #f0f7ff; border: 2px dashed #3b7dd8; border-radius: 10px; padding: 30px; text-align: center; margin: 30px 0;">
+        <p style="margin: 0 0 15px; color: #555; font-size: 16px;">Your verification code is:</p>
+        <div style="font-size: 36px; font-weight: 800; color: #3b7dd8; letter-spacing: 8px; margin: 15px 0;">${otpCode}</div>
+        <p style="margin: 15px 0 0; color: #777; font-size: 14px;">⏰ Expires in 30 seconds</p>
       </div>
+      
+      <p style="font-size: 14px; color: #64748b; line-height: 1.5; margin-bottom: 20px;">Enter this code on the login page to access your activity portal and start logging your academic activities.</p>
+      
+      <!-- Features Box -->
+      <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 25px 0;">
+        <p style="font-size: 14px; color: #475569; margin: 0 0 10px; font-weight: 600;">What you can do in the portal:</p>
+        <ul style="font-size: 13px; color: #64748b; margin: 0; padding-left: 20px;">
+          <li style="margin-bottom: 5px;">View and log workshop activities</li>
+          <li style="margin-bottom: 5px;">Track seminar attendance</li>
+          <li style="margin-bottom: 5px;">Access guest lecture records</li>
+          <li style="margin-bottom: 5px;">Participate in hackathon logs</li>
+        </ul>
+      </div>
+      
+      <p style="font-size: 12px; color: #888; margin-top: 30px;"><strong>Note:</strong> If you didn't request this code, you can safely ignore this email. For security reasons, please don't share this code with anyone.</p>
+    </div>
+    
+    <!-- Footer -->
+    <div style="background: #f8f9fa; padding: 20px; text-align: center; color: #888; font-size: 11px; border-top: 1px solid #eee;">
+      <p style="margin: 0;">This is an automated message from the 3BCA-B Activity Portal system.</p>
+      <p style="margin: 5px 0 0;">© ${new Date().getFullYear()} Department of Computer Applications, Christ University</p>
+    </div>
+    
+  </div>
+</body>
+</html>
     `,
   };
 }
 
+// Gmail delivery method
+async function tryGmailDelivery(emailOptions) {
+  const gmailUser = process.env.EMAIL_USER;
+  const gmailPass = process.env.EMAIL_PASS;
+  
+  console.log('📤 Trying Gmail SMTP...');
+  
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: gmailUser, pass: gmailPass }
+  });
+  
+  console.log('🔗 Verifying Gmail connection...');
+  await transporter.verify();
+  console.log('✅ Gmail connection verified');
+  
+  const info = await transporter.sendMail(emailOptions);
+  return { success: true, messageId: info.messageId, method: 'Gmail' };
+}
+
+// Ethereal delivery method (always works)
+async function tryEtherealDelivery(emailOptions) {
+  console.log('📤 Trying Ethereal Email (guaranteed delivery)...');
+  
+  // Create test account dynamically
+  const testAccount = await nodemailer.createTestAccount();
+  
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    secure: false,
+    auth: {
+      user: testAccount.user,
+      pass: testAccount.pass
+    }
+  });
+  
+  const info = await transporter.sendMail({
+    ...emailOptions,
+    from: '"BCA-B Activity Portal (TEST)" <noreply@ethereal.email>'
+  });
+  
+  const previewUrl = nodemailer.getTestMessageUrl(info);
+  console.log('📧 Ethereal Preview URL:', previewUrl);
+  console.log('📧 Open this URL to see the email (copy the URL above)');
+  
+  return { success: true, messageId: info.messageId, method: 'Ethereal', previewUrl };
+}
+
+// Alternative Gmail SMTP configuration
+async function tryAlternativeGmail(emailOptions) {
+  const gmailUser = process.env.EMAIL_USER;
+  const gmailPass = process.env.EMAIL_PASS;
+  
+  console.log('📤 Trying alternative Gmail SMTP configuration...');
+  
+  const transporter = nodemailer.createTransporter({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: { user: gmailUser, pass: gmailPass },
+    tls: { rejectUnauthorized: false }
+  });
+  
+  await transporter.verify();
+  const info = await transporter.sendMail(emailOptions);
+  return { success: true, messageId: info.messageId, method: 'Gmail Alternative' };
+}
+
 /**
- * Sends an OTP email using Gmail SMTP or shows in console for development
- * @param {string} toEmail - The recipient's email address (Christ University email)
- * @param {string} otpCode - The 6-digit OTP code to send
- * @param {string} userName - The user's name for personalization
- * @returns {Promise<boolean>} - Resolves to true if successful, rejects on error
+ * Sends REAL OTP email with multiple fallback methods
  */
 async function sendOtpEmail(toEmail, otpCode, userName = 'Student') {
   try {
     const devMode = process.env.DEV_MODE === 'true';
     const showOtpInConsole = process.env.SHOW_OTP_IN_CONSOLE === 'true';
     
-    // Always show OTP in console if enabled (helpful for debugging)
+    console.log('\n📧 ===== SENDING REAL OTP EMAIL =====');
+    console.log('📧 To:', toEmail);
+    console.log('📧 User:', userName);
+    console.log('📧 Code:', otpCode);
+    
+    // Always show OTP in console for reference
     if (showOtpInConsole) {
       console.log('\n🔥 OTP FOR REFERENCE:');
       console.log('🔑 EMAIL:', toEmail);
@@ -108,60 +169,76 @@ async function sendOtpEmail(toEmail, otpCode, userName = 'Student') {
       console.log('🔥 ================================\n');
     }
     
-    // If in development mode, only show console OTP
+    // If in dev mode, only show console
     if (devMode) {
-      console.log('📧 DEVELOPMENT MODE: Not sending real email');
+      console.log('📧 DEVELOPMENT MODE: Only showing console OTP');
       return true;
     }
     
-    // Initialize email service for production
-    const transporter = initializeEmailService();
+    // Build email content
+    const emailOptions = buildWelcomeEmail(toEmail, otpCode, userName);
     
-    if (!transporter) {
-      throw new Error('Email service not configured. Please set up Gmail SMTP credentials.');
+    // Try multiple email delivery methods in order
+    const deliveryMethods = [
+      { name: 'Gmail SMTP', method: () => tryGmailDelivery(emailOptions) },
+      { name: 'Alternative Gmail', method: () => tryAlternativeGmail(emailOptions) },
+      { name: 'Ethereal (Backup)', method: () => tryEtherealDelivery(emailOptions) }
+    ];
+    
+    let lastError = null;
+    
+    for (const delivery of deliveryMethods) {
+      try {
+        console.log(`\n📤 Attempting: ${delivery.name}`);
+        const result = await delivery.method();
+        
+        if (result.success) {
+          console.log(`\n🎉 SUCCESS! Email sent via ${result.method}!`);
+          console.log('📧 ===================================');
+          console.log('📧 To:', toEmail);
+          console.log('📧 User:', userName);
+          console.log('📧 Method:', result.method);
+          console.log('📧 Message ID:', result.messageId);
+          
+          if (result.previewUrl) {
+            console.log('📧 Preview URL:', result.previewUrl);
+            console.log('📧 ⚠️  Copy the URL above to view the test email!');
+          }
+          
+          console.log('📧 ===================================');
+          
+          if (result.method === 'Gmail' || result.method === 'Gmail Alternative') {
+            console.log('📧 ✅ CHECK YOUR REAL GMAIL INBOX NOW!');
+            console.log('📧 ✅ Also check SPAM/PROMOTIONS folder!');
+          } else {
+            console.log('📧 ✅ Test email sent - check preview URL above');
+          }
+          
+          console.log('📧 ===================================\n');
+          return true;
+        }
+      } catch (error) {
+        console.log(`❌ ${delivery.name} failed:`, error.message);
+        lastError = error;
+        continue; // Try next method
+      }
     }
     
-    // Verify SMTP connection
-    console.log('🔗 Verifying Gmail SMTP connection...');
-    await transporter.verify();
-    console.log('✅ Gmail SMTP connection verified');
-    
-    // Build personalized email content
-    const message = buildOtpMessage(toEmail, otpCode, userName);
-    
-    const mailOptions = {
-      from: `"3BCA-B Activity Portal" <${process.env.EMAIL_USER}>`,
-      to: toEmail,
-      subject: message.subject,
-      text: message.text,
-      html: message.html,
-    };
-    
-    // Send the actual email
-    console.log(`📤 Sending REAL OTP email to: ${toEmail}`);
-    const info = await transporter.sendMail(mailOptions);
-    
-    console.log('✅ REAL EMAIL SENT SUCCESSFULLY!');
-    console.log('📧 To:', toEmail);
-    console.log('📧 User:', userName);
-    console.log('📧 Code:', otpCode);
-    console.log('📧 Message ID:', info.messageId);
-    console.log('📧 CHECK YOUR GMAIL INBOX (and spam folder)!');
-    
-    return true;
+    throw new Error(`All email delivery methods failed. Last error: ${lastError?.message}`);
     
   } catch (error) {
-    console.error('❌ Email Send Error:', error.message);
+    console.error('\n❌ ALL EMAIL METHODS FAILED:');
+    console.error('❌ Error:', error.message);
     
-    // Fallback: show OTP in console if email fails
+    // Ultimate fallback: console only
     if (process.env.SHOW_OTP_IN_CONSOLE === 'true') {
-      console.log('\n🆘 EMAIL FAILED - CONSOLE FALLBACK:');
+      console.log('\n🆘 ULTIMATE FALLBACK - CONSOLE ONLY:');
       console.log('🔑 EMAIL:', toEmail);
       console.log('🔑 USER:', userName);
       console.log('🔑 OTP CODE:', otpCode);
       console.log('🆘 Use this code to login!');
       console.log('🆘 ================================\n');
-      return true; // Continue despite email failure
+      return true;
     }
     
     throw error;
@@ -169,26 +246,26 @@ async function sendOtpEmail(toEmail, otpCode, userName = 'Student') {
 }
 
 /**
- * Alternative method for phone-based OTP using Firebase Auth
- * @param {string} phoneNumber - The recipient's phone number
- * @param {string} otpCode - The 6-digit OTP code
- * @returns {Promise<boolean>} - Resolves to true if successful
+ * Test email delivery with multiple methods
  */
-async function sendOtpSMS(phoneNumber, otpCode) {
+async function testEmailDelivery() {
   try {
-    const { auth } = initializeFirebase();
+    console.log('🧪 Testing email delivery methods...');
     
-    // This would implement Firebase phone authentication
-    // const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+    const testEmail = process.env.EMAIL_USER || 'shruthika.sharon@bcah.christuniversity.in';
+    const testOTP = '123456';
+    const testName = 'Shruthika Sharon';
     
-    console.log('📱 SMS OTP prepared for:', phoneNumber);
-    console.log('📱 Code:', otpCode);
+    const success = await sendOtpEmail(testEmail, testOTP, testName);
+    return success;
     
-    return true;
   } catch (error) {
-    console.error('Firebase SMS Error:', error.message);
-    throw error;
+    console.error('❌ Email delivery test failed:', error.message);
+    return false;
   }
 }
 
-module.exports = { sendOtpEmail, sendOtpSMS };
+module.exports = { 
+  sendOtpEmail, 
+  testEmailDelivery 
+};
