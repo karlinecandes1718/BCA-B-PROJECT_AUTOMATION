@@ -1,0 +1,319 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Create backup branch: `git checkout -b main-backup-before-merge`": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133496334
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133534475
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133683710
+      }
+    ],
+    "1.2 Return to main branch: `git checkout main`": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133496619
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133701427
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133796071
+      }
+    ],
+    "1.3 Ensure clean working tree: `git status` and stash if needed": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133496882
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133823745
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133973396
+      }
+    ],
+    "1.4 Verify current branch is main: `git branch --show-current`": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133497207
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133991026
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784134043566
+      }
+    ],
+    "2.1 Attempt merge: `git merge frontend-S --allow-unrelated-histories`": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133497498
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784134063223
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784134415974
+      }
+    ],
+    "2.2 Document any error messages or conflict reports": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133497774
+      },
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784134433598
+      }
+    ],
+    "2.3 If merge fails fatally, document the specific error": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133498011
+      }
+    ],
+    "3.1 List conflicted files: `git status`": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133498286
+      }
+    ],
+    "3.2 Show only conflicted files: `git diff --name-only --diff-filter=U`": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133498691
+      }
+    ],
+    "3.3 Categorize conflicts by file type:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133498946
+      }
+    ],
+    "3.4 Document conflict count and file list": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133499291
+      }
+    ],
+    "4.1 Resolve root `package.json` conflicts:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133499489
+      }
+    ],
+    "4.2 Resolve backend `package.json` conflicts:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133499776
+      }
+    ],
+    "4.3 Resolve frontend `package.json` conflicts:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133499984
+      }
+    ],
+    "4.4 Resolve `.env` and environment file conflicts:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133500178
+      }
+    ],
+    "4.5 Resolve `.gitignore` conflicts:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133500396
+      }
+    ],
+    "5.1 Resolve TypeScript configuration conflicts (`tsconfig.json` files):": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133500701
+      }
+    ],
+    "5.2 Resolve build configuration conflicts:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133500906
+      }
+    ],
+    "5.3 Resolve linter configuration conflicts:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133501199
+      }
+    ],
+    "5.4 Resolve source code file conflicts:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133501437
+      }
+    ],
+    "5.5 Resolve documentation file conflicts:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133501720
+      }
+    ],
+    "6.1 Stage all resolved files: `git add .`": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133501965
+      }
+    ],
+    "6.2 Create merge commit: `git commit -m \"Merge frontend-S into main: Resolved unrelated histories and conflicts\"`": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133502180
+      }
+    ],
+    "6.3 Verify merge completion:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133502388
+      }
+    ],
+    "6.4 Verify no remaining conflicts: `git diff --name-only --diff-filter=U` returns empty": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133502639
+      }
+    ],
+    "7.1 Test root build: `npm run build` (if exists) or verify package.json": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133502917
+      }
+    ],
+    "7.2 Test backend functionality:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133503137
+      }
+    ],
+    "7.3 Test frontend functionality:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133503344
+      }
+    ],
+    "7.4 Test key functionality:": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133503593
+      }
+    ],
+    "7.5 Run any existing test suites": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133503851
+      }
+    ],
+    "7.6 Document any issues discovered": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133504076
+      }
+    ],
+    "Git merge completes without fatal errors": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133504282
+      }
+    ],
+    "All conflict markers removed from all files": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133504503
+      }
+    ],
+    "Merge commit appears in git history": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133504750
+      }
+    ],
+    "Builds succeed for root, backend, and frontend": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133504932
+      }
+    ],
+    "Key functionality preserved from both branches": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133505118
+      }
+    ],
+    "Working tree is clean post-merge": [
+      {
+        "executionId": "92342eb1-288d-46f5-b5a1-e3bab1f94b8a",
+        "chatSessionId": "sess_4b04d8f6-f1f9-464c-abcc-8ff5dfd52e1f",
+        "timestamp": 1784133505325
+      }
+    ]
+  }
+}
