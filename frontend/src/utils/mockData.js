@@ -19,7 +19,7 @@ export const getCategoryGradient = (category) => {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
     <defs>
       <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="${c.includes("workshop") ? "#0d9488" : c.includes("guest") ? "#d97706" : c.includes("hackathon") ? "#7c3aed" : "#3b7dd8"}" />
+        <stop offset="0%" stop-color="${c.includes("workshop") ? "#0d9488" : c.includes("guest") ? "#d97706" : c.includes("hackathon") ? "#7c3aed" : "#1e4fa3"}" />
         <stop offset="100%" stop-color="${c.includes("workshop") ? "#075985" : c.includes("guest") ? "#9f1239" : c.includes("hackathon") ? "#86198f" : "#1e1b4b"}" />
       </linearGradient>
     </defs>

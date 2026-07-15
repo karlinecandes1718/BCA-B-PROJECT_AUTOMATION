@@ -25,41 +25,20 @@ export default function ActivityDetail() {
   }, [loading, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!id) return;
-    
-    // Immediate synchronous loading for better performance
     try {
       const stored = localStorage.getItem("bca_activities");
       const all = stored ? JSON.parse(stored) : INITIAL_ACTIVITIES;
-      const foundActivity = all.find(x => x.id === id);
-      
-      if (foundActivity) {
-        setActivity(foundActivity);
-        setFound(true);
-      } else {
-        setFound(false);
-      }
-    } catch (error) {
-      console.error('Error loading activity:', error);
-      setFound(false);
-    }
+      const a = all.find(x => x.id === id);
+      if (a) { setActivity(a); } else { setFound(false); }
+    } catch { setFound(false); }
   }, [id]);
 
-  // Early return with faster loading indicator if activity is loading
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-screen bg-[#F8FAFC]">
-        <div className="text-center space-y-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3B7DD8] mx-auto"></div>
-          <p className="text-xs text-slate-500">Loading ClassArchive...</p>
-        </div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1E4FA3]"></div>
       </div>
     );
-  }
-  
-  if (!user) {
-    router.replace("/");
-    return null;
   }
 
   if (!found || !activity) {
@@ -68,11 +47,11 @@ export default function ActivityDetail() {
         <Navbar />
         <div className="flex-1 flex items-center justify-center p-8 text-center">
           <div className="space-y-4 max-w-sm">
-            <h3 className="text-xl font-bold text-[#0F172A]">ClassArchive Activity Not Found</h3>
-            <p className="text-sm text-slate-500">This activity may have been removed from the archive.</p>
+            <h3 className="text-xl font-bold text-[#0F172A]">Activity Not Found</h3>
+            <p className="text-sm text-slate-500">This log may have been deleted.</p>
             <Link
               href={user.role === "admin" ? "/admin" : "/dashboard"}
-              className="inline-flex items-center gap-2 bg-[#3B7DD8] text-white px-4 py-2 rounded-lg text-sm font-semibold"
+              className="inline-flex items-center gap-2 bg-[#1E4FA3] text-white px-4 py-2 rounded-lg text-sm font-semibold"
             >
               <ArrowLeft className="h-4 w-4" /> Back to Feed
             </Link>
@@ -89,7 +68,7 @@ export default function ActivityDetail() {
     if (cat.includes("workshop")) return "bg-teal-50 text-teal-700 border-teal-200";
     if (cat.includes("guest") || cat.includes("talk")) return "bg-amber-50 text-amber-700 border-amber-200";
     if (cat.includes("hackathon")) return "bg-violet-50 text-violet-700 border-violet-200";
-    return "bg-blue-50 text-[#3B7DD8] border-blue-200";
+    return "bg-blue-50 text-[#1E4FA3] border-blue-200";
   };
 
   const renderMd = (text) => {
@@ -97,7 +76,7 @@ export default function ActivityDetail() {
     return text.split("\n").map((line, i) => {
       const t = line.trim();
       if (t.startsWith("# ")) return <h2 key={i} className="text-xl font-black text-[#0F172A] border-b border-[#D9E3F0] pb-2 mt-6 mb-3">{t.slice(2)}</h2>;
-      if (t.startsWith("### ")) return <h3 key={i} className="text-base font-extrabold text-[#3B7DD8] mt-4 mb-2">{t.slice(4)}</h3>;
+      if (t.startsWith("### ")) return <h3 key={i} className="text-base font-extrabold text-[#1E4FA3] mt-4 mb-2">{t.slice(4)}</h3>;
       if (t.startsWith("#### ")) return <h4 key={i} className="text-sm font-bold text-slate-800 mt-3 mb-1">{t.slice(5)}</h4>;
       if (t === "---") return <hr key={i} className="border-t border-[#D9E3F0] my-4" />;
       if (t.startsWith("- ") || t.startsWith("* ")) return <li key={i} className="text-sm text-slate-600 ml-4 list-disc leading-relaxed">{parseBold(t.slice(2))}</li>;
@@ -123,12 +102,12 @@ export default function ActivityDetail() {
         <div className="flex items-center justify-between">
           <Link
             href={user.role === "admin" ? "/admin" : "/dashboard"}
-            className="inline-flex items-center gap-2 text-xs font-bold text-[#3B7DD8] hover:text-[#3B7DD8] bg-white px-3 py-2 rounded-lg border border-[#D9E3F0] shadow-sm transition-all"
+            className="inline-flex items-center gap-2 text-xs font-bold text-[#1E4FA3] hover:text-[#3B7DD8] bg-white px-3 py-2 rounded-lg border border-[#D9E3F0] shadow-sm transition-all"
           >
             <ArrowLeft className="h-4 w-4" /> Back to Feed
           </Link>
           {activity.aiFormatted && (
-            <span className="bg-blue-50 border border-blue-200 text-[#3B7DD8] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
+            <span className="bg-indigo-50 border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5" /> AI Formatted
             </span>
           )}
@@ -161,7 +140,7 @@ export default function ActivityDetail() {
               <div className="flex justify-center gap-2">
                 {images.map((_, i) => (
                   <button key={i} onClick={() => setActiveImg(i)}
-                    className={`h-2 rounded-full transition-all cursor-pointer ${i === activeImg ? "w-4 bg-[#3B7DD8]" : "w-2 bg-slate-300 hover:bg-slate-400"}`}
+                    className={`h-2 rounded-full transition-all cursor-pointer ${i === activeImg ? "w-4 bg-[#1E4FA3]" : "w-2 bg-slate-300 hover:bg-slate-400"}`}
                   />
                 ))}
               </div>

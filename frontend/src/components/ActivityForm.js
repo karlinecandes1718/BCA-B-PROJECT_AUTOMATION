@@ -109,7 +109,7 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
       <div className="bg-white rounded-xl shadow-2xl border border-slate-200 w-full max-w-2xl overflow-hidden animate-scale-in flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="bg-[#3B7DD8] px-6 py-4 flex items-center justify-between text-white border-b border-[#3B7DD8]/15">
+        <div className="bg-[#1E4FA3] px-6 py-4 flex items-center justify-between text-white border-b border-[#1E4FA3]/15">
           <div>
             <h3 className="text-lg font-bold">
               {activity ? "Edit Classroom Activity" : "Log New Activity"}
@@ -234,7 +234,7 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
               className="mt-1 h-4.5 w-4.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
             />
             <div className="flex-1">
-              <label htmlFor="aiFormattedCheckbox" className="text-sm font-bold text-[#3B7DD8] flex items-center space-x-1 cursor-pointer">
+              <label htmlFor="aiFormattedCheckbox" className="text-sm font-bold text-[#1E4FA3] flex items-center space-x-1 cursor-pointer">
                 <Sparkles className="h-4 w-4 text-[#3B7DD8] fill-blue-100" />
                 <span>Format using AI Automation</span>
               </label>
@@ -257,7 +257,7 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
           </button>
           <button
             onClick={handleSubmit}
-            className="px-5 py-2.5 bg-[#3B7DD8] hover:bg-[#3B7DD8]/90 active:bg-[#3B7DD8] text-white rounded-lg text-sm font-semibold transition-colors flex items-center space-x-2 shadow-md cursor-pointer"
+            className="px-5 py-2.5 bg-[#1E4FA3] hover:bg-[#3B7DD8] active:bg-[#1E4FA3] text-white rounded-lg text-sm font-semibold transition-colors flex items-center space-x-2 shadow-md cursor-pointer"
             disabled={isSubmitting}
           >
             {isSubmitting ? (

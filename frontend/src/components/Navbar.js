@@ -30,21 +30,21 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="bg-[#3B7DD8] text-white shadow-md border-b border-[#3B7DD8]/20 sticky top-0 z-40">
+      <nav className="bg-[#1E4FA3] text-white shadow-md border-b border-[#1E4FA3]/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
 
-            {/* ClassArchive Branding */}
+            {/* Branding */}
             <Link
               href={user.role === "admin" ? "/admin" : "/dashboard"}
-              className="flex items-center space-x-3 hover:opacity-90 transition-opacity group"
+              className="flex items-center space-x-3 hover:opacity-90 transition-opacity"
             >
-              <div className="bg-white/15 p-2.5 rounded-xl group-hover:bg-white/20 transition-colors">
+              <div className="bg-white/10 p-2 rounded-md">
                 <BookOpen className="h-6 w-6 text-white" />
               </div>
               <div>
-                <span className="font-black text-lg tracking-wide block leading-none">ClassArchive</span>
-                <span className="text-xs text-blue-100 font-medium uppercase tracking-wider">3BCA-B Portal</span>
+                <span className="font-bold text-lg tracking-wide block leading-none">3BCA-B</span>
+                <span className="text-xs text-slate-200 font-medium">Activity Portal</span>
               </div>
             </Link>
 

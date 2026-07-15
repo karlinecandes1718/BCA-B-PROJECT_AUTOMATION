@@ -45,7 +45,7 @@ export default function AdminDashboard() {
   if (loading || !user || user.role !== "admin") {
     return (
       <div className="flex-1 flex items-center justify-center min-h-screen bg-[#F8FAFC]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3B7DD8]"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1E4FA3]"></div>
       </div>
     );
   }
@@ -89,7 +89,7 @@ export default function AdminDashboard() {
         {/* Admin Header */}
         <div className="bg-white rounded-2xl border border-[#D9E3F0] p-5 sm:p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <div className="flex items-center gap-2 text-[#3B7DD8] text-xs font-extrabold uppercase tracking-wide mb-1">
+            <div className="flex items-center gap-2 text-indigo-700 text-xs font-extrabold uppercase tracking-wide mb-1">
               <Shield className="h-4 w-4" />
               <span>Administrator Control Dashboard</span>
             </div>
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
           </div>
           <button
             onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}
-            className="flex items-center gap-2 bg-[#3B7DD8] hover:bg-[#3B7DD8]/80 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
+            className="flex items-center gap-2 bg-[#1E4FA3] hover:bg-[#3B7DD8] text-white px-5 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
           >
             <Plus className="h-5 w-5" />
             <span>Add Activity</span>
@@ -154,14 +154,14 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center max-w-md mx-auto shadow-sm">
-            <FileSpreadsheet className="h-10 w-10 text-blue-400 mx-auto mb-3 animate-pulse" />
+            <FileSpreadsheet className="h-10 w-10 text-indigo-400 mx-auto mb-3 animate-pulse" />
             <h4 className="font-bold text-[#0F172A] text-base">Add your first activity</h4>
             <p className="text-xs text-slate-500 mt-1 leading-relaxed mb-6">
               No logs yet. Add an activity to start the classroom record.
             </p>
             <button
               onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}
-              className="inline-flex items-center gap-2 bg-[#3B7DD8] hover:bg-[#3B7DD8]/80 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 bg-[#1E4FA3] hover:bg-[#3B7DD8] text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               <span>Create Activity Record</span>
