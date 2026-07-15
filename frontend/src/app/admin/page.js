@@ -19,6 +19,8 @@ export default function AdminDashboard() {
   const [sortBy, setSortBy] = useState("newest");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState(null);
+  const [tokenUsage, setTokenUsage] = useState(0);
+  const TOKEN_LIMIT = 1000000;
 
   // Auth guard
   useEffect(() => {
@@ -27,8 +29,16 @@ export default function AdminDashboard() {
     if (user.role !== "admin") { router.replace("/dashboard"); return; }
   }, [loading, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load activities
+  // Load activities and token usage
   useEffect(() => {
+    const updateTokenUsage = () => {
+      const usage = parseInt(localStorage.getItem('bca_token_usage') || '0', 10);
+      setTokenUsage(usage);
+    };
+
+    updateTokenUsage();
+    window.addEventListener('tokenUsageUpdated', updateTokenUsage);
+
     try {
       const stored = localStorage.getItem("bca_activities");
       if (stored) {
@@ -40,6 +50,8 @@ export default function AdminDashboard() {
     } catch {
       setActivities(INITIAL_ACTIVITIES);
     }
+
+    return () => window.removeEventListener('tokenUsageUpdated', updateTokenUsage);
   }, []);
 
   if (loading || !user || user.role !== "admin") {
@@ -81,6 +93,9 @@ export default function AdminDashboard() {
       return sortBy === "newest" ? db - da : da - db;
     });
 
+  const usagePercent = Math.min((tokenUsage / TOKEN_LIMIT) * 100, 100);
+  const isNearLimit = usagePercent > 85;
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
       <Navbar />
@@ -88,7 +103,7 @@ export default function AdminDashboard() {
 
         {/* Admin Header */}
         <div className="bg-white rounded-2xl border border-[#D9E3F0] p-5 sm:p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
+          <div className="flex-1 w-full">
             <div className="flex items-center gap-2 text-indigo-700 text-xs font-extrabold uppercase tracking-wide mb-1">
               <Shield className="h-4 w-4" />
               <span>Administrator Control Dashboard</span>
@@ -97,6 +112,25 @@ export default function AdminDashboard() {
             <p className="text-xs text-slate-500 mt-1 max-w-xl leading-relaxed">
               Logged in as <span className="font-bold text-slate-700">{user.identifier}</span>. Create, edit, or remove activity logs.
             </p>
+            
+            {/* Token Usage Bar */}
+            <div className="mt-5 max-w-md bg-slate-50 border border-slate-200 rounded-lg p-3">
+              <div className="flex justify-between items-end mb-1.5">
+                <span className="text-xs font-semibold text-slate-700">AI Token Usage</span>
+                <span className="text-[10px] font-medium text-slate-500">
+                  <span className={isNearLimit ? "text-red-600 font-bold" : "text-slate-800"}>
+                    {tokenUsage.toLocaleString()}
+                  </span> 
+                  {' '}/ {TOKEN_LIMIT.toLocaleString()} TPM limit
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                <div 
+                  className={`h-1.5 rounded-full transition-all duration-500 ${isNearLimit ? 'bg-red-500' : 'bg-[#1E4FA3]'}`}
+                  style={{ width: `${usagePercent}%` }}
+                ></div>
+              </div>
+            </div>
           </div>
           <button
             onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}

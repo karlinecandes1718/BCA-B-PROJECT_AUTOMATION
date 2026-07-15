@@ -7,7 +7,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { processKeywordsForClient } from '../services/keywordProcessor.js';
+import { processEventDescriptionForClient } from '../services/keywordProcessor.js';
 import type { KeywordsApiResponse, KeywordsApiErrorResponse } from '../types/keyword.js';
 
 const router = Router();
@@ -43,10 +43,10 @@ router.post(
 
       // ── 2. Image Guardrails ───────────────────────────────────────────────────
       if (image) {
-        if (image.mimeType !== 'image/jpeg') {
+        if (image.mimeType !== 'image/jpeg' && image.mimeType !== 'image/png' && image.mimeType !== 'image/webp') {
           res.status(400).json({
             success: false,
-            error: 'Only image/jpeg format is supported.',
+            error: 'Unsupported image format.',
           });
           return;
         }
@@ -82,12 +82,11 @@ router.post(
       }
 
       // ── Orchestrate through the processor ─────────────────────────────────
-      const data = await processKeywordsForClient(parsedKeywords, image);
+      const data = await processEventDescriptionForClient(parsedKeywords, image);
 
       // ── Return ONLY the clean typed payload — no metadata, no tokens ───────
       res.status(200).json({
         success: true,
-        count: data.length,
         data,
       });
 

@@ -9,22 +9,22 @@
  * no SDK headers, no internal error details.
  */
 
-import { generateKeywordData } from './geminiService.js';
-import type { KeywordResult } from '../types/keyword.js';
+import { generateEventDescription } from './geminiService.js';
+import type { EventResult } from '../types/keyword.js';
 
 /**
- * Processes a raw array of keyword strings and an optional image through the Gemini Flash service
- * and returns a clean, client-safe `KeywordResult[]`.
+ * Processes a raw array of keyword strings and an optional image through the Gemini service
+ * and returns a clean, client-safe `EventResult`.
  *
  * @param parsedKeywords - Array of keyword strings.
  * @param image          - Optional Base64 encoded image object.
- * @returns              - A typed Promise resolving to a clean `KeywordResult[]`.
+ * @returns              - A typed Promise resolving to a clean `EventResult`.
  * @throws               - A sanitized operational error (never leaks system internals).
  */
-async function processKeywordsForClient(
+async function processEventDescriptionForClient(
   parsedKeywords: string[],
   image?: { mimeType: string; data: string }
-): Promise<KeywordResult[]> {
+): Promise<EventResult> {
 
   // ── Pre-flight validation ───────────────────────────────────────────────────
   if (parsedKeywords.length === 0 && !image) {
@@ -32,26 +32,13 @@ async function processKeywordsForClient(
   }
 
   // ── Forward to Gemini service ──────────────────────────────────────────────
-  const rawResults = await generateKeywordData(parsedKeywords, image);
+  const result = await generateEventDescription(parsedKeywords, image);
 
-  // ── Safe array verification ────────────────────────────────────────────────
-  // Even though generateKeywordData already narrows the type, we verify here
-  // as an explicit defensive layer in this orchestration boundary.
-  if (!Array.isArray(rawResults)) {
-    throw new Error('Upstream service returned an unexpected non-array payload.');
-  }
-
-  // ── Strip & map to exact KeywordResult shape ───────────────────────────────
-  // Explicitly whitelist only the fields defined in KeywordResult.
-  // This prevents any extra fields (metadata, token info, SDK internals)
-  // from leaking into the HTTP response, even if the upstream shape changes.
-  const cleanResults: KeywordResult[] = rawResults.map((item) => ({
-    keyword:     item.keyword,
-    description: item.description,
-    summary:     item.summary,
-  }));
-
-  return cleanResults;
+  // ── Return clean result ──────────────────────────────────────────────────
+  return {
+    description: result.description,
+    usage: result.usage,
+  };
 }
 
-export { processKeywordsForClient };
+export { processEventDescriptionForClient };

@@ -56,8 +56,8 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
       setFormError("Event date is required.");
       return;
     }
-    if (!description.trim()) {
-      setFormError("Description or notes are required.");
+    if (!description.trim() && photos.length === 0) {
+      setFormError("Description or at least one photo is required.");
       return;
     }
     const wordCount = countWords(description);
@@ -84,7 +84,15 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
 
       // Run AI formatter if selected
       if (aiFormatted && (!activity || rawEntry.description !== activity.description || !activity.aiFormatted)) {
-        finalDescription = await formatActivityWithAI(rawEntry);
+        const aiResult = await formatActivityWithAI(rawEntry);
+        finalDescription = aiResult.description;
+        
+        if (aiResult.usage) {
+          const currentUsage = parseInt(localStorage.getItem('bca_token_usage') || '0', 10);
+          localStorage.setItem('bca_token_usage', (currentUsage + aiResult.usage).toString());
+          window.dispatchEvent(new Event('tokenUsageUpdated'));
+        }
+
         finalAiFormatted = true;
       }
 
@@ -196,7 +204,7 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="block text-sm font-semibold text-slate-700">
-                Raw Description / Event Log Details <span className="text-red-500">*</span>
+                Raw Description / Event Log Details <span className="text-slate-400 font-normal ml-1">(Required if no photo)</span>
               </label>
               <span className={`text-xs font-medium ${
                 countWords(description) > 100 ? 'text-red-600' : 'text-slate-500'
@@ -214,7 +222,6 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                   : 'border-slate-200 focus:border-[#3B7DD8] focus:ring-[#3B7DD8]'
               }`}
-              required
             />
             {countWords(description) > 100 && (
               <p className="text-xs text-red-600 mt-1">⚠ Description exceeds 100 words limit.</p>

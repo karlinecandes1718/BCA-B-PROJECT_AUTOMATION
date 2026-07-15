@@ -7,9 +7,9 @@
  * API key sourced exclusively from the validated `env` object — never from raw process.env.
  */
 
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { env } from '../config/env.js';
-import type { KeywordResult } from '../types/keyword.js';
+import type { EventResult } from '../types/keyword.js';
 
 // ─── Allowed Free-Tier Models ─────────────────────────────────────────────────
 export const ALLOWED_MODELS = ['gemini-2.5-flash', 'gemini-1.5-flash'] as const;
@@ -21,10 +21,6 @@ const DEFAULT_MODEL: AllowedModel = 'gemini-2.5-flash';
 const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 
 // ─── Internal Model Guard ─────────────────────────────────────────────────────
-/**
- * Validates the requested model against the allowed free-tier list.
- * Throws a descriptive error if a Pro/Ultra model is attempted.
- */
 function resolveModel(requestedModel?: string): AllowedModel {
   if (requestedModel !== undefined) {
     if (!(ALLOWED_MODELS as readonly string[]).includes(requestedModel)) {
@@ -38,21 +34,38 @@ function resolveModel(requestedModel?: string): AllowedModel {
   return DEFAULT_MODEL;
 }
 
+const SYSTEM_PROMPT = `You are an AI assistant built into an event management portal. Your job is to analyze the provided inputs—which may be a list of keywords, an uploaded image (like a flyer or photo), or a mix of both—and generate a structured event description.
+
+You must strictly adhere to the following rules:
+
+Length: Keep the entire response under 150 words.
+
+Tone: Engaging, informative, and professional.
+
+Missing Info: If the image or keywords lack specific details (like exact time or date), write the description smoothly without inventing fake dates. Use placeholders like "[Date]" only if absolutely necessary, but prefer natural phrasing like "Coming this weekend."
+
+You MUST use this exact layout for the output:
+
+[Catchy Event Title]
+
+Overview:
+[A 1-2 sentence introduction explaining what the event/workshop/announcement is about based on the image or text details.]
+
+Key Details:
+
+What to Expect: [A brief bullet point detailing the main activity or takeaway.]
+
+Who It's For: [A brief bullet point defining the target audience or a major highlight like "Beginner friendly" or "Free Entry".]
+
+Call to Action:
+[A final punchy sentence inviting users to register, join, or learn more.]`;
+
 // ─── Core Service Function ────────────────────────────────────────────────────
-/**
- * Generates SEO descriptions and summaries for an array of keywords.
- * Uses Gemini structured output to guarantee a typed `KeywordResult[]` response.
- *
- * @param keywordList - A non-empty array of keyword strings to analyze.
- * @param model       - Optional free-tier model override (defaults to gemini-2.5-flash).
- * @returns           - A typed Promise resolving to a `KeywordResult[]` array.
- * @throws            - A safe, sanitized error if the API call fails.
- */
-async function generateKeywordData(
+async function generateEventDescription(
   keywordList: string[],
   image?: { mimeType: string; data: string },
   model?: string
-): Promise<KeywordResult[]> {
+): Promise<EventResult> {
 
   // ── 1. Input Validation ───────────────────────────────────────────────────
   const sanitizedKeywords: string[] = Array.isArray(keywordList) 
@@ -66,46 +79,24 @@ async function generateKeywordData(
   const resolvedModel = resolveModel(model);
 
   // ── 2. Determine Workflow & Build Payload ─────────────────────────────────
-  let contentsPayload: any;
-  const isImageOnly = sanitizedKeywords.length === 0 && image;
-  const isHybrid = sanitizedKeywords.length > 0 && image;
+  let contentsPayload: any[] = [];
+  
+  // Add the user input text if keywords are provided
+  let userInput = '';
+  if (sanitizedKeywords.length > 0) {
+    userInput = `User Input Keywords: ${sanitizedKeywords.join(', ')}`;
+  } else if (image) {
+    userInput = `User Input: (No keywords provided. Please analyze the image and generate the description based entirely on what you see in the flyer/photo.)`;
+  }
 
-  if (isImageOnly && image) {
-    // Workflow 2: Image Only
-    contentsPayload = [
-      { inlineData: { mimeType: image.mimeType, data: image.data.replace(/^data:image\/\w+;base64,/, "") } },
-      { text: `You are an expert SEO content strategist.
-Extract the dominant items, objects, or themes from this image and treat them as keywords.
-For EACH extracted keyword provide:
-1. "description": a precise, keyword-rich description in exactly 30 words.
-2. "summary": a single compelling sentence summarizing its SEO search value.
+  contentsPayload.push(SYSTEM_PROMPT);
 
-Return ONLY a valid JSON array with one object per keyword. No markdown, no extra text.` }
-    ];
-  } else if (isHybrid && image) {
-    // Workflow 3: Fused Hybrid
-    contentsPayload = [
-      { inlineData: { mimeType: image.mimeType, data: image.data.replace(/^data:image\/\w+;base64,/, "") } },
-      { text: `You are an expert SEO content strategist.
-Analyze the following keywords and fuse them with the visual context from the provided image.
-For EACH keyword provide:
-1. "description": a precise, keyword-rich description in exactly 30 words incorporating visual details from the image.
-2. "summary": a single compelling sentence summarizing its SEO search value.
+  if (image) {
+    contentsPayload.push({ inlineData: { mimeType: image.mimeType, data: image.data.replace(/^data:image\/\w+;base64,/, "") } });
+  }
 
-Keywords to analyze: ${sanitizedKeywords.join(', ')}
-
-Return ONLY a valid JSON array with one object per keyword. No markdown, no extra text.` }
-    ];
-  } else {
-    // Workflow 1: Keywords Only
-    contentsPayload = `You are an expert SEO content strategist.
-Analyze the following keywords and for EACH keyword provide:
-1. "description": a precise, keyword-rich description in exactly 30 words.
-2. "summary": a single compelling sentence summarizing its SEO search value.
-
-Keywords to analyze: ${sanitizedKeywords.join(', ')}
-
-Return ONLY a valid JSON array with one object per keyword. No markdown, no extra text.`;
+  if (userInput) {
+    contentsPayload.push(userInput);
   }
 
   // ── 3. API Call ───────────────────────────────────────────────────────────
@@ -113,76 +104,39 @@ Return ONLY a valid JSON array with one object per keyword. No markdown, no extr
     const response = await ai.models.generateContent({
       model: resolvedModel,
       contents: contentsPayload,
-      config: {
-        // ── Structured Output: Forces Gemini to return parseable JSON ────────
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              keyword:     { type: Type.STRING },
-              description: { type: Type.STRING },
-              summary:     { type: Type.STRING },
-            },
-            required: ['keyword', 'description', 'summary'],
-          },
-        },
-      },
     });
 
     // ── 4. Safe Parsing ──────────────────────────────────────────────────────
     const rawText = response.text;
+    const usage = response.usageMetadata?.totalTokenCount || 0;
 
     if (!rawText || rawText.trim() === '') {
       throw new Error('Gemini returned an empty response body.');
     }
 
-    const parsed: unknown = JSON.parse(rawText);
-
-    if (!Array.isArray(parsed)) {
-      throw new Error('Gemini response did not return a JSON array as expected.');
-    }
-
-    // ── Type narrowing: ensure each item has the required shape ────────────
-    const results: KeywordResult[] = parsed.map((item: unknown, index: number) => {
-      if (
-        typeof item !== 'object' ||
-        item === null ||
-        typeof (item as Record<string, unknown>)['keyword'] !== 'string' ||
-        typeof (item as Record<string, unknown>)['description'] !== 'string' ||
-        typeof (item as Record<string, unknown>)['summary'] !== 'string'
-      ) {
-        throw new Error(`Gemini response item at index ${index} is missing required fields.`);
-      }
-
-      const record = item as Record<string, string>;
-      return {
-        keyword:     record['keyword'],
-        description: record['description'],
-        summary:     record['summary'],
-      };
-    });
-
-    return results;
+    return { description: rawText.trim(), usage };
 
   } catch (error: unknown) {
     // ── 5. Safe Error Handling ───────────────────────────────────────────────
+    console.error('[geminiService] Gemini API error:', JSON.stringify(error));
+    
+    // Check if it's an API key error (e.g. leaked or invalid key)
+    if (error && typeof error === 'object') {
+      const err = error as any;
+      if (err.status === 403 || (err.error && err.error.code === 403) || err.message?.includes('API key')) {
+        throw new Error(err.message || err.error?.message || 'Invalid or leaked API key. Please update your backend .env file with a new key.');
+      }
+    }
+
     const rawMessage = error instanceof Error ? error.message : String(error);
 
-    // Detect unreadable image errors from the API (safety, corrupted, bad format, etc.)
     const isImageError = /image|format|safety|content/i.test(rawMessage);
     if (image && isImageError) {
       throw new Error("Unable to read the image. Please delete it and add a clearer image, or add a text description instead.");
     }
 
-    // Redact the API key from the message in case it appears in an SDK error
-    const safeMessage = rawMessage.replaceAll(env.GEMINI_API_KEY, '[REDACTED]');
-    console.error(`[geminiService] Gemini API error: ${safeMessage}`);
-
-    // Throw a generic operational error — safe for upstream route handlers
     throw new Error(`Gemini API call failed. Please try again later.`);
   }
 }
 
-export { generateKeywordData };
+export { generateEventDescription };
