@@ -118,7 +118,7 @@ exports.sendOtp = async (req, res) => {
 
     // Log OTP to Supabase database
     try {
-      await db.logOtp(trimmedEmail, otp, hashedOtp, 30); // 30 seconds
+      await db.logOtp(trimmedEmail, otp, otp, 30); // 30 seconds
       console.log(`📊 OTP logged to Supabase database`);
     } catch (dbError) {
       console.warn('[SUPABASE] Error logging OTP:', dbError.message);

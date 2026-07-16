@@ -1,12 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F0F7FF; /* Light blueish background */
-  --foreground: #1E293B;
-  --primary-blue: #3B7DD8; /* Premium Light/Medium blue */
-  --secondary-blue: #60A5FA; /* Brighter/Lighter blue */
-  --border-color: #E2E8F0;
-  --indigo-accent: #3B7DD8;
+  --background: #F7FBFF; /* Very light blue background */
+  --foreground: #1A365D;
+  --primary-blue: #4299E1; /* Light blue */
+  --secondary-blue: #63B3ED; /* Softer light blue */
+  --accent-blue: #90CDF4; /* Very light blue accent */
+  --border-color: #BEE3F8;
+  --card-bg: #FFFFFF;
+  --gradient-start: #EBF8FF;
+  --gradient-end: #BEE3F8;
 }
 
 @theme inline {
@@ -14,30 +17,67 @@
   --color-foreground: var(--foreground);
   --color-primary-blue: var(--primary-blue);
   --color-secondary-blue: var(--secondary-blue);
+  --color-accent-blue: var(--accent-blue);
   --color-border-color: var(--border-color);
-  --color-indigo-accent: var(--indigo-accent);
+  --color-card-bg: var(--card-bg);
+  --color-gradient-start: var(--gradient-start);
+  --color-gradient-end: var(--gradient-end);
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
   color: var(--foreground);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
 /* Glassmorphism Styles */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 8px 32px rgba(66, 153, 225, 0.15);
 }
 
 .glass-panel-dark {
-  background: rgba(15, 23, 42, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(26, 54, 93, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Light blue button styles */
+.btn-light-blue {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-light-blue:hover {
+  background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--accent-blue) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(66, 153, 225, 0.3);
+}
+
+.btn-light-blue:active {
+  transform: translateY(0);
+}
+
+/* Card styles */
+.card-light-blue {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(66, 153, 225, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-light-blue:hover {
+  box-shadow: 0 8px 24px rgba(66, 153, 225, 0.2);
+  transform: translateY(-4px);
 }
 
 /* Animations */
@@ -111,21 +151,40 @@ body {
 
 /* Custom Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F8FAFC;
+  background: #EBF8FF;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 9999px;
+  background: var(--secondary-blue);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: var(--primary-blue);
+}
+
+/* Light blue input focus styles */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--primary-blue) !important;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1) !important;
+  outline: none !important;
+}
+
+/* Light blue link styles */
+a {
+  color: var(--primary-blue);
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--secondary-blue);
+  text-decoration: underline;
 }
 
 /* Hide autofill yellow tint in inputs */
