@@ -14,8 +14,6 @@ Your verification code is: ${otpCode}
 
 This code will expire in 30 seconds. Please enter it on the login page to access your activity portal.
 
-If you didn't request this code, you can safely ignore this email.
-
 Best regards,
 Department of Computer Applications
 Christ University
@@ -49,20 +47,7 @@ Christ University
         <p style="margin: 15px 0 0; color: #777; font-size: 14px;">⏰ Expires in 30 seconds</p>
       </div>
       
-      <p style="font-size: 14px; color: #64748b; line-height: 1.5; margin-bottom: 20px;">Enter this code on the login page to access your activity portal and start logging your academic activities.</p>
-      
-      <!-- Features Box -->
-      <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 25px 0;">
-        <p style="font-size: 14px; color: #475569; margin: 0 0 10px; font-weight: 600;">What you can do in the portal:</p>
-        <ul style="font-size: 13px; color: #64748b; margin: 0; padding-left: 20px;">
-          <li style="margin-bottom: 5px;">View and log workshop activities</li>
-          <li style="margin-bottom: 5px;">Track seminar attendance</li>
-          <li style="margin-bottom: 5px;">Access guest lecture records</li>
-          <li style="margin-bottom: 5px;">Participate in hackathon logs</li>
-        </ul>
-      </div>
-      
-      <p style="font-size: 12px; color: #888; margin-top: 30px;"><strong>Note:</strong> If you didn't request this code, you can safely ignore this email. For security reasons, please don't share this code with anyone.</p>
+      <p style="font-size: 14px; color: #64748b; line-height: 1.5; margin-bottom: 20px;">Enter this code on the login page to access your activity portal.</p>
     </div>
     
     <!-- Footer -->
