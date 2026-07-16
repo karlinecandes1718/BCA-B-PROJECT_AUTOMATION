@@ -41,8 +41,11 @@ export default function StudentDashboard() {
 
   if (loading || !user || user.role !== "student") {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen bg-[#F8FAFC]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1E4FA3]"></div>
+      <div className="flex-1 flex items-center justify-center min-h-screen bg-gradient-to-br from-[#EBF8FF] to-[#BEE3F8]">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4299E1]"></div>
+          <p className="text-sm text-[#4299E1] font-medium">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -68,34 +71,43 @@ export default function StudentDashboard() {
     });
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#EBF8FF] to-[#BEE3F8]">
       <Navbar />
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         {/* Welcome Message */}
-        <div className="space-y-1">
-          <h2 className="text-xl font-semibold text-slate-900">Welcome, {getFirstName(user.identifier)}</h2>
-          <p className="text-sm text-slate-600">Browse the official archive of technical sessions and events.</p>
+        <div className="space-y-2">
+          <div className="glass-panel rounded-2xl p-6">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-[#4299E1] to-[#63B3ED] bg-clip-text text-transparent">
+              Welcome, {getFirstName(user.identifier)}!
+            </h2>
+            <p className="text-sm text-[#1A365D] font-medium mt-1">
+              Browse the official archive of technical sessions and events.
+            </p>
+            <div className="mt-4 flex items-center">
+              <div className="h-1 w-16 bg-gradient-to-r from-[#4299E1] to-[#63B3ED] rounded-full"></div>
+            </div>
+          </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-sm flex flex-col sm:flex-row gap-3">
+        <div className="glass-panel rounded-2xl p-4 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4299E1] pointer-events-none" />
             <input
               type="text"
               placeholder="Search activities..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900/20 bg-white"
+              className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
             />
           </div>
-          <div className="relative sm:w-40">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+          <div className="relative sm:w-48">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4299E1] pointer-events-none" />
             <select
               value={selectedCategory}
               onChange={e => setSelectedCategory(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900/20 bg-white"
+              className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
             >
               {categories.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -103,7 +115,7 @@ export default function StudentDashboard() {
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            className="sm:w-40 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-slate-900 focus:ring-1 focus:ring-slate-900/20 bg-white"
+            className="sm:w-48 border-2 border-[#BEE3F8] bg-white/80 rounded-xl px-4 py-3 text-sm text-[#1A365D] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -112,16 +124,16 @@ export default function StudentDashboard() {
 
         {/* Grid */}
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map(act => (
               <ActivityCard key={act.id} activity={act} isAdmin={false} />
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center max-w-md mx-auto shadow-sm">
-            <AlertCircle className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-            <h4 className="font-bold text-[#0F172A] text-base">No activities found</h4>
-            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+          <div className="glass-panel rounded-2xl border-2 border-dashed border-[#BEE3F8] p-12 text-center max-w-md mx-auto">
+            <AlertCircle className="h-12 w-12 text-[#90CDF4] mx-auto mb-4" />
+            <h4 className="font-bold text-[#1A365D] text-lg">No activities found</h4>
+            <p className="text-sm text-[#4299E1] font-medium mt-2 leading-relaxed">
               No logs match your search or no activities have been recorded yet.
             </p>
           </div>

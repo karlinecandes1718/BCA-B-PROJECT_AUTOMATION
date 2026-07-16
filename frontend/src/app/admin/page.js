@@ -44,8 +44,11 @@ export default function AdminDashboard() {
 
   if (loading || !user || user.role !== "admin") {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen bg-[#F8FAFC]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1E4FA3]"></div>
+      <div className="flex-1 flex items-center justify-center min-h-screen bg-gradient-to-br from-[#EBF8FF] to-[#BEE3F8]">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4299E1]"></div>
+          <p className="text-sm text-[#4299E1] font-medium">Loading admin dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -82,25 +85,30 @@ export default function AdminDashboard() {
     });
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#EBF8FF] to-[#BEE3F8]">
       <Navbar />
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         {/* Admin Header */}
-        <div className="bg-white rounded-2xl border border-[#D9E3F0] p-5 sm:p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="glass-panel rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <div className="flex items-center gap-2 text-indigo-700 text-xs font-extrabold uppercase tracking-wide mb-1">
+            <div className="flex items-center gap-2 bg-gradient-to-r from-[#4299E1] to-[#63B3ED] bg-clip-text text-transparent text-xs font-extrabold uppercase tracking-wide mb-2">
               <Shield className="h-4 w-4" />
               <span>Administrator Control Dashboard</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-[#0F172A]">3BCA-B Records Panel</h2>
-            <p className="text-xs text-slate-500 mt-1 max-w-xl leading-relaxed">
-              Logged in as <span className="font-bold text-slate-700">{user.identifier}</span>. Create, edit, or remove activity logs.
+            <h2 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-[#1A365D] to-[#2D4B7E] bg-clip-text text-transparent">
+              3BCA-B Records Panel
+            </h2>
+            <p className="text-sm text-[#4299E1] font-medium mt-2 max-w-xl leading-relaxed">
+              Logged in as <span className="font-bold text-[#1A365D]">{user.identifier}</span>. Create, edit, or remove activity logs.
             </p>
+            <div className="mt-4 flex items-center">
+              <div className="h-1 w-20 bg-gradient-to-r from-[#4299E1] to-[#63B3ED] rounded-full"></div>
+            </div>
           </div>
           <button
             onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}
-            className="flex items-center gap-2 bg-[#1E4FA3] hover:bg-[#3B7DD8] text-white px-5 py-3 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
+            className="flex items-center gap-2 btn-light-blue text-white px-6 py-3.5 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer shrink-0"
           >
             <Plus className="h-5 w-5" />
             <span>Add Activity</span>
@@ -108,23 +116,23 @@ export default function AdminDashboard() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl border border-[#D9E3F0] p-4 shadow-sm flex flex-col sm:flex-row gap-3">
+        <div className="glass-panel rounded-2xl p-4 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4299E1] pointer-events-none" />
             <input
               type="text"
               placeholder="Search activities..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg pl-9 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#3B7DD8] focus:ring-1 focus:ring-[#3B7DD8]/20 bg-slate-50/30"
+              className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
             />
           </div>
-          <div className="relative sm:w-44">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+          <div className="relative sm:w-48">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#4299E1] pointer-events-none" />
             <select
               value={selectedCategory}
               onChange={e => setSelectedCategory(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg pl-9 pr-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#3B7DD8] bg-slate-50/30"
+              className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
             >
               {categories.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -132,7 +140,7 @@ export default function AdminDashboard() {
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
-            className="sm:w-44 border border-slate-200 rounded-lg px-4 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#3B7DD8] bg-slate-50/30"
+            className="sm:w-48 border-2 border-[#BEE3F8] bg-white/80 rounded-xl px-4 py-3 text-sm text-[#1A365D] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -141,7 +149,7 @@ export default function AdminDashboard() {
 
         {/* Grid */}
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map(act => (
               <ActivityCard
                 key={act.id}
@@ -153,17 +161,17 @@ export default function AdminDashboard() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-dashed border-slate-300 p-12 text-center max-w-md mx-auto shadow-sm">
-            <FileSpreadsheet className="h-10 w-10 text-indigo-400 mx-auto mb-3 animate-pulse" />
-            <h4 className="font-bold text-[#0F172A] text-base">Add your first activity</h4>
-            <p className="text-xs text-slate-500 mt-1 leading-relaxed mb-6">
+          <div className="glass-panel rounded-2xl border-2 border-dashed border-[#BEE3F8] p-12 text-center max-w-md mx-auto">
+            <FileSpreadsheet className="h-12 w-12 text-[#90CDF4] mx-auto mb-4 animate-pulse" />
+            <h4 className="font-bold text-[#1A365D] text-lg">Add your first activity</h4>
+            <p className="text-sm text-[#4299E1] font-medium mt-2 leading-relaxed mb-8">
               No logs yet. Add an activity to start the classroom record.
             </p>
             <button
               onClick={() => { setEditingActivity(null); setIsFormOpen(true); }}
-              className="inline-flex items-center gap-2 bg-[#1E4FA3] hover:bg-[#3B7DD8] text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 btn-light-blue text-white px-5 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-5 w-5" />
               <span>Create Activity Record</span>
             </button>
           </div>

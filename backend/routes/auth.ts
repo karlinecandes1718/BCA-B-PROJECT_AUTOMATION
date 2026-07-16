@@ -17,16 +17,36 @@ const router = Router();
 
 /**
  * POST /api/auth/admin
- * Body: { "password": "..." }
+ * Body: { "name": "...", "password": "..." }
  */
 router.post('/admin', (req: Request, res: Response) => {
-  const { password } = req.body as { password?: unknown };
+  const { name, password } = req.body as { name?: unknown; password?: unknown };
 
   // ── Input validation ──────────────────────────────────────────────────────
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    res.status(400).json({
+      success: false,
+      error: 'Administrator name is required.',
+    });
+    return;
+  }
+
+  // Validate admin name (case-insensitive)
+  const allowedNames = ['shruthika', 'karline', 'deepanshu'];
+  const normalizedName = name.trim().toLowerCase();
+  
+  if (!allowedNames.includes(normalizedName)) {
+    res.status(401).json({
+      success: false,
+      error: 'Unauthorized administrator name.',
+    });
+    return;
+  }
+
   if (!password || typeof password !== 'string' || password.trim() === '') {
     res.status(400).json({
       success: false,
-      error: 'Password is required.',
+      error: 'Security code is required.',
     });
     return;
   }

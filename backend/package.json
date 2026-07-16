@@ -1,31 +1,24 @@
 {
-  "name": "backend",
+  "name": "bca-activity-log-backend",
   "version": "1.0.0",
-  "description": "SEO Keyword Generation Backend using Google Gemini Flash",
-  "main": "dist/index.js",
+  "description": "Express.js backend for secure OTP verification",
+  "main": "server.js",
   "scripts": {
-    "dev": "tsx watch index.ts",
-    "build": "tsc --project tsconfig.json",
-    "start": "node dist/index.js",
-    "type-check": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node unified-server.js",
+    "dev": "nodemon unified-server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "dependencies": {
-    "@google/genai": "^2.10.0",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "zod": "^4.4.3"
+    "@supabase/supabase-js": "^2.110.3",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "firebase": "^10.12.2",
+    "node-fetch": "^2.7.0",
+    "nodemailer": "^6.9.13"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/node": "^26.1.1",
-    "tsx": "^4.23.0",
-    "typescript": "^7.0.2"
+    "nodemon": "^3.1.14"
   }
 }

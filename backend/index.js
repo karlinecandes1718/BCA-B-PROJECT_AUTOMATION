@@ -14,6 +14,9 @@ import { env } from './config/env.js';
 import keywordsRouter from './routes/keywords.js';
 import authRouter from './routes/auth.js';
 
+// Add OTP routes
+import otpRoutes from './routes/otpRoutes.js';
+
 const app = express();
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
@@ -31,6 +34,7 @@ app.disable('x-powered-by');
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRouter);
 app.use('/api/keywords', keywordsRouter);
+app.use('/api', otpRoutes); // OTP routes at /api/send-otp, /api/verify-otp, etc.
 
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 // Catches any error thrown from routes/middleware
@@ -50,7 +54,7 @@ app.use((err, req, res, next) => {
 });
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
-const PORT = env.PORT ?? 5000;
+const PORT = env.PORT ?? 5003;
 app.listen(PORT, () => {
   console.log(`✅ Backend server running on http://localhost:${PORT}`);
   console.log(`   Environment: ${env.NODE_ENV}`);

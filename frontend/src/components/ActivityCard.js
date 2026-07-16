@@ -13,7 +13,7 @@ export default function ActivityCard({ activity, isAdmin, onEdit, onDelete }) {
     if (c.includes("workshop")) return "bg-teal-50 text-teal-700 border-teal-200";
     if (c.includes("guest") || c.includes("talk")) return "bg-amber-50 text-amber-700 border-amber-200";
     if (c.includes("hackathon")) return "bg-violet-50 text-violet-700 border-violet-200";
-    return "bg-blue-50 text-[#1E4FA3] border-blue-200";
+    return "bg-blue-50 text-[#3B7DD8] border-blue-200";
   };
 
   const getExcerpt = (text) => {
@@ -50,7 +50,7 @@ export default function ActivityCard({ activity, isAdmin, onEdit, onDelete }) {
               {activity.category}
             </span>
             {activity.aiFormatted && (
-              <span className="bg-indigo-600 text-white border border-indigo-500 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-sm">
+              <span className="bg-[#3B7DD8] text-white border border-[#3B7DD8]/80 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-sm">
                 <Sparkles className="h-3 w-3 animate-pulse" />
                 AI Formatted
               </span>
@@ -92,7 +92,7 @@ export default function ActivityCard({ activity, isAdmin, onEdit, onDelete }) {
           <div className="flex items-center justify-between pt-4 border-t border-[#D9E3F0] mt-auto">
             <Link
               href={`/activity/${activity.id}`}
-              className="text-xs font-bold text-[#1E4FA3] hover:text-[#3B7DD8] flex items-center hover:underline"
+              className="text-xs font-bold text-[#3B7DD8] hover:text-[#3B7DD8]/80 flex items-center hover:underline"
             >
               View Details →
             </Link>

@@ -21,6 +21,11 @@ const envSchema = z.object({
       'GEMINI_API_KEY appears to be a placeholder. Please set a real API key.'
     ),
 
+  ADMIN_PASSWORD: z
+    .string({ error: 'ADMIN_PASSWORD is required but was not found in environment.' })
+    .min(1, 'ADMIN_PASSWORD must not be empty.')
+    .default('12345'),
+
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
