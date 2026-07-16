@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { BookOpen, Shield, Key, AlertCircle, Mail, Chrome, Eye, EyeOff, CheckCircle } from "lucide-react";
 
 // ── Backend URL — read from Next.js env at build time (server-side safe) ──────
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5004";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5003";
 
 export default function LoginPage() {
   const { user, loading, login } = useAuth();
@@ -106,7 +106,7 @@ export default function LoginPage() {
         }
 
         setOtpSent(true);
-        setOtpTimer(300); // 5 minute timer (300 seconds)
+        setOtpTimer(30); // 30 second timer
         setCanResend(false);
         setStudentError("");
         
@@ -183,7 +183,7 @@ export default function LoginPage() {
         return;
       }
 
-      setOtpTimer(300); // Reset timer to 5 minutes
+      setOtpTimer(30); // Reset timer to 30 seconds
       setCanResend(false);
       setStudentSuccess(`New OTP sent to ${trimmed}!`);
       

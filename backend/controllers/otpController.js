@@ -112,7 +112,7 @@ exports.sendOtp = async (req, res) => {
     // Store OTP in memory (temporary)
     otpStore[trimmedEmail] = {
       otp: otp, // Store plain OTP since it's temporary and short-lived
-      expiresAt: now + 5 * 60 * 1000, // 5 minutes (300 seconds)
+      expiresAt: now + 30 * 1000, // 30 seconds
       lastSentAt: now,
       attempts: 0,
     };
@@ -318,7 +318,7 @@ exports.resendOtp = async (req, res) => {
 
     otpStore[trimmedEmail] = {
       otp: otp,
-      expiresAt: now + 5 * 60 * 1000, // 5 minutes (300 seconds)
+      expiresAt: now + 30 * 1000, // 30 seconds
       lastSentAt: now,
       attempts: 0,
     };
