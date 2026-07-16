@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { BookOpen, Shield, Key, AlertCircle, Mail, Chrome } from "lucide-react";
 
 // ── Backend URL — read from Next.js env at build time (server-side safe) ──────
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5003";
 
 export default function LoginPage() {
   const { user, loading, login } = useAuth();

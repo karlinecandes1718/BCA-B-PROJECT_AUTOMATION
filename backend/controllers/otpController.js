@@ -1,5 +1,6 @@
 const { sendOtpEmail } = require('../utils/emailHelper');
 const { db } = require('../utils/supabaseClient');
+const bcrypt = require('bcrypt');
 
 // In-memory OTP storage (temporary until we move to Redis)
 const otpStore = {};
@@ -314,10 +315,9 @@ exports.resendOtp = async (req, res) => {
     }
 
     const otp = String(Math.floor(100000 + Math.random() * 900000));
-    const hashedOtp = await bcrypt.hash(otp, 10);
 
     otpStore[trimmedEmail] = {
-      hashedOtp,
+      otp: otp,
       expiresAt: now + 30 * 1000, // 30 seconds
       lastSentAt: now,
       attempts: 0,
@@ -325,7 +325,7 @@ exports.resendOtp = async (req, res) => {
 
     // Log to Supabase
     try {
-      await db.logOtp(trimmedEmail, otp, hashedOtp, 30); // 30 seconds
+      await db.logOtp(trimmedEmail, otp, otp, 30); // 30 seconds
     } catch (dbError) {
       console.warn('[SUPABASE] Error logging resent OTP:', dbError.message);
     }
