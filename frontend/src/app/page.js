@@ -429,9 +429,9 @@ export default function LoginPage() {
                       id="adminName"
                       value={adminName}
                       onChange={(e) => setAdminName(e.target.value)}
-                      placeholder="Enter admin name (shruthika, karline, deepanshu)"
+                      placeholder="Enter administrator name"
                       autoComplete="off"
-                      className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
+                      className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm input-enhanced hover-lift"
                     />
                   </div>
                 </div>
