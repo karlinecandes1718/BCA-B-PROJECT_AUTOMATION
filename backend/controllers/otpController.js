@@ -1,6 +1,6 @@
 const { sendOtpEmail } = require('../utils/emailHelper');
 const { db } = require('../utils/supabaseClient');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // In-memory OTP storage (temporary until we move to Redis)
 const otpStore = {};
@@ -13,8 +13,8 @@ function normalizeEmail(email) {
 
 function isValidChristEmail(email) {
   if (!email) return false;
-  // Strict validation for @bcah.christuniversity.in with additional checks
-  const emailRegex = /^[a-z0-9]+([._-]?[a-z0-9]+)*@bcah\.christuniversity\.in$/i;
+  // Accept both @christuniversity.in and @bcah.christuniversity.in
+  const emailRegex = /^[a-z0-9]+([._-]?[a-z0-9]+)*@(bcah\.)?christuniversity\.in$/i;
   
   // Additional checks for edge cases
   if (email.includes('..')) return false; // No consecutive dots
@@ -112,7 +112,7 @@ exports.sendOtp = async (req, res) => {
     // Store OTP in memory (temporary)
     otpStore[trimmedEmail] = {
       otp: otp, // Store plain OTP since it's temporary and short-lived
-      expiresAt: now + 30 * 1000, // 30 seconds
+      expiresAt: now + 5 * 60 * 1000, // 5 minutes (300 seconds)
       lastSentAt: now,
       attempts: 0,
     };
@@ -318,7 +318,7 @@ exports.resendOtp = async (req, res) => {
 
     otpStore[trimmedEmail] = {
       otp: otp,
-      expiresAt: now + 30 * 1000, // 30 seconds
+      expiresAt: now + 5 * 60 * 1000, // 5 minutes (300 seconds)
       lastSentAt: now,
       attempts: 0,
     };

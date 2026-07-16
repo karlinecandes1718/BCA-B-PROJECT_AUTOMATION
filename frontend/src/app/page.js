@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { BookOpen, Shield, Key, AlertCircle, Mail, Chrome, Eye, EyeOff } from "lucide-react";
 
 // ── Backend URL — read from Next.js env at build time (server-side safe) ──────
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5003";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5004";
 
 export default function LoginPage() {
   const { user, loading, login } = useAuth();
@@ -81,7 +81,7 @@ export default function LoginPage() {
     }
     
     if (!/^[a-zA-Z0-9._%+-]+@bcah\.christuniversity\.in$/.test(trimmed)) {
-      setStudentError("Only @bcah.christuniversity.in email addresses are accepted.");
+      setStudentError("Only official Christ University email addresses are accepted.");
       return;
     }
 
@@ -104,7 +104,7 @@ export default function LoginPage() {
         }
 
         setOtpSent(true);
-        setOtpTimer(30); // 30 second timer
+        setOtpTimer(300); // 5 minute timer (300 seconds)
         setCanResend(false);
         setStudentError("");
         
@@ -178,7 +178,7 @@ export default function LoginPage() {
         return;
       }
 
-      setOtpTimer(30); // Reset timer
+      setOtpTimer(300); // Reset timer to 5 minutes
       setCanResend(false);
       setStudentError(`New OTP sent to ${trimmed}!`);
       
@@ -236,7 +236,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 min-h-screen bg-gradient-to-br from-[#EBF8FF] to-[#BEE3F8]">
+    <div className="flex-1 flex flex-col justify-center py-10 px-4 sm:px-6 lg:px-8 min-h-screen interactive-background">
+      {/* Floating particles background */}
+      <div className="floating-particles">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
 
       {/* Header branding */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 mb-10">
@@ -254,8 +267,8 @@ export default function LoginPage() {
       </div>
 
       {/* Login card */}
-      <div className="sm:mx-auto w-full sm:max-w-md">
-        <div className="glass-panel rounded-2xl overflow-hidden shadow-2xl">
+      <div className="sm:mx-auto w-full sm:max-w-md pulse-glow-container">
+        <div className="glass-panel rounded-2xl overflow-hidden shadow-2xl login-card-interactive">
 
           {/* Tab bar */}
           <div className="flex border-b border-white/30 bg-gradient-to-r from-white/90 to-white/80">
@@ -269,7 +282,7 @@ export default function LoginPage() {
                 setOtpCode("");
                 setOtpTimer(0);
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-semibold transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-semibold transition-all cursor-pointer tab-interactive ${
                 activeTab === "student"
                   ? "bg-gradient-to-r from-[#4299E1] to-[#63B3ED] text-white shadow-md"
                   : "text-[#1A365D] hover:bg-white/50"
@@ -323,13 +336,13 @@ export default function LoginPage() {
                         id="studentGmail"
                         value={gmail}
                         onChange={(e) => setGmail(e.target.value)}
-                        placeholder="username@bcah.christuniversity.in"
+                        placeholder=""
                         autoComplete="email"
                         className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm input-enhanced hover-lift"
                       />
                     </div>
                     <p className="text-xs text-[#4299E1] font-medium mt-2 pl-1">
-                      Only @bcah.christuniversity.in email addresses are accepted
+                      Use your official university email address
                     </p>
                   </div>
                   
@@ -349,7 +362,7 @@ export default function LoginPage() {
                             id="otpCode"
                             value={otpCode}
                             onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                            placeholder="123456"
+                            placeholder=""
                             autoComplete="one-time-code"
                             className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm text-center tracking-widest font-mono input-enhanced hover-lift"
                             maxLength={6}
@@ -429,7 +442,7 @@ export default function LoginPage() {
                       id="adminName"
                       value={adminName}
                       onChange={(e) => setAdminName(e.target.value)}
-                      placeholder="Enter administrator name"
+                      placeholder=""
                       autoComplete="off"
                       className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm input-enhanced hover-lift"
                     />
