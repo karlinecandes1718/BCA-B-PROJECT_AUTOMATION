@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import { BookOpen, Shield, Key, AlertCircle, Mail, Chrome } from "lucide-react";
+import { BookOpen, Shield, Key, AlertCircle, Mail, Chrome, Eye, EyeOff } from "lucide-react";
 
 // ── Backend URL — read from Next.js env at build time (server-side safe) ──────
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5003";
@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [adminName, setAdminName] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [adminError, setAdminError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   
   // OTP state
   const [otpSent, setOtpSent] = useState(false);
@@ -324,7 +325,7 @@ export default function LoginPage() {
                         onChange={(e) => setGmail(e.target.value)}
                         placeholder="username@bcah.christuniversity.in"
                         autoComplete="email"
-                        className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
+                        className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm input-enhanced hover-lift"
                       />
                     </div>
                     <p className="text-xs text-[#4299E1] font-medium mt-2 pl-1">
@@ -350,7 +351,7 @@ export default function LoginPage() {
                             onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                             placeholder="123456"
                             autoComplete="one-time-code"
-                            className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm text-center tracking-widest font-mono"
+                            className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm text-center tracking-widest font-mono input-enhanced hover-lift"
                             maxLength={6}
                           />
                         </div>
@@ -433,9 +434,6 @@ export default function LoginPage() {
                       className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
                     />
                   </div>
-                  <p className="text-xs text-[#4299E1] font-medium mt-2 pl-1">
-                    Allowed names: shruthika, karline, deepanshu (case-insensitive)
-                  </p>
                 </div>
                 <div>
                   <label htmlFor="adminPassword" className="block text-sm font-semibold text-[#1A365D] mb-2">
@@ -446,18 +444,26 @@ export default function LoginPage() {
                       <Key className="h-5 w-5" />
                     </div>
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       id="adminPassword"
                       value={adminPassword}
                       onChange={(e) => setAdminPassword(e.target.value)}
                       placeholder="••••••"
                       autoComplete="current-password"
-                      className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-4 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
+                      className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-12 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#4299E1] hover:text-[#63B3ED] transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
                   </div>
-                  <p className="text-xs text-[#4299E1] font-medium mt-2 pl-1">
-                    Current admin password: 12345
-                  </p>
                 </div>
                 <button
                   type="submit"

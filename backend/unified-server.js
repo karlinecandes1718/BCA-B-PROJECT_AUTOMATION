@@ -5,7 +5,7 @@ require('dotenv').config();
 
 // Import routes
 const otpRoutes = require('./routes/otpRoutes');
-const authRouter = require('./routes/auth');
+const authRouter = require('./routes/auth.js');
 
 const app = express();
 
