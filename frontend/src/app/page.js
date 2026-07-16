@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
-import { BookOpen, Shield, Key, AlertCircle, Mail, Chrome, Eye, EyeOff } from "lucide-react";
+import { BookOpen, Shield, Key, AlertCircle, Mail, Chrome, Eye, EyeOff, CheckCircle } from "lucide-react";
 
 // ── Backend URL — read from Next.js env at build time (server-side safe) ──────
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5004";
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [activeTab, setActiveTab] = useState("student");
   const [gmail, setGmail] = useState("");
   const [studentError, setStudentError] = useState("");
+  const [studentSuccess, setStudentSuccess] = useState("");
   const [adminName, setAdminName] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [adminError, setAdminError] = useState("");
@@ -73,6 +74,7 @@ export default function LoginPage() {
   const handleStudentGmailSubmit = async (e) => {
     e.preventDefault();
     setStudentError("");
+    setStudentSuccess("");
     const trimmed = gmail.trim().toLowerCase();
     
     if (!trimmed) {
@@ -109,7 +111,7 @@ export default function LoginPage() {
         setStudentError("");
         
         // Show success message
-        setStudentError(`OTP sent successfully to ${trimmed}! Check your email.`);
+        setStudentSuccess(`OTP sent successfully to ${trimmed}! Check your email.`);
         
       } catch (err) {
         setStudentError("Unable to reach the OTP server. Please try again later.");
@@ -161,6 +163,9 @@ export default function LoginPage() {
       setStudentError("Email is required.");
       return;
     }
+    
+    setStudentError("");
+    setStudentSuccess("");
 
     setOtpLoading(true);
     try {
@@ -180,7 +185,7 @@ export default function LoginPage() {
 
       setOtpTimer(300); // Reset timer to 5 minutes
       setCanResend(false);
-      setStudentError(`New OTP sent to ${trimmed}!`);
+      setStudentSuccess(`New OTP sent to ${trimmed}!`);
       
     } catch (err) {
       setStudentError("Unable to resend OTP. Please try again later.");
@@ -278,6 +283,7 @@ export default function LoginPage() {
                 setActiveTab("student"); 
                 setAdminError(""); 
                 setStudentError(""); 
+                setStudentSuccess("");
                 setOtpSent(false);
                 setOtpCode("");
                 setOtpTimer(0);
@@ -295,12 +301,13 @@ export default function LoginPage() {
               onClick={() => { 
                 setActiveTab("admin"); 
                 setStudentError(""); 
+                setStudentSuccess("");
                 setAdminError(""); 
                 setOtpSent(false);
                 setOtpCode("");
                 setOtpTimer(0);
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-semibold transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-semibold transition-all cursor-pointer tab-interactive ${
                 activeTab === "admin"
                   ? "bg-gradient-to-r from-[#4299E1] to-[#63B3ED] text-white shadow-md"
                   : "text-[#1A365D] hover:bg-white/50"
@@ -318,9 +325,15 @@ export default function LoginPage() {
                 {/* Manual email form */}
                 <form onSubmit={handleStudentGmailSubmit} className="space-y-4">
                   {studentError && (
-                    <div className="bg-red-50/80 border border-red-200/50 text-red-700 p-3 rounded-xl text-sm flex items-center gap-3 backdrop-blur-sm">
+                    <div className="bg-red-50/80 border border-red-200/50 text-red-700 p-3 rounded-xl text-sm flex items-center gap-3 backdrop-blur-sm message-slide-in">
                       <AlertCircle className="h-5 w-5 shrink-0" />
                       <span className="font-medium">{studentError}</span>
+                    </div>
+                  )}
+                  {studentSuccess && (
+                    <div className="bg-green-50/80 border border-green-200/50 text-green-700 p-3 rounded-xl text-sm flex items-center gap-3 backdrop-blur-sm message-slide-in">
+                      <CheckCircle className="h-5 w-5 shrink-0" />
+                      <span className="font-medium">{studentSuccess}</span>
                     </div>
                   )}
                   <div>
@@ -410,6 +423,7 @@ export default function LoginPage() {
                         setOtpSent(false);
                         setOtpCode("");
                         setStudentError("");
+                        setStudentSuccess("");
                       }}
                       className="w-full text-sm text-[#4299E1] font-medium hover:text-[#63B3ED] transition-colors"
                     >
@@ -461,7 +475,7 @@ export default function LoginPage() {
                       id="adminPassword"
                       value={adminPassword}
                       onChange={(e) => setAdminPassword(e.target.value)}
-                      placeholder="••••••"
+                      placeholder=""
                       autoComplete="current-password"
                       className="w-full border-2 border-[#BEE3F8] bg-white/80 rounded-xl pl-10 pr-12 py-3 text-sm text-[#1A365D] placeholder-[#90CDF4] focus:outline-none focus:border-[#4299E1] focus:ring-2 focus:ring-[#4299E1]/20 transition-all backdrop-blur-sm"
                     />
