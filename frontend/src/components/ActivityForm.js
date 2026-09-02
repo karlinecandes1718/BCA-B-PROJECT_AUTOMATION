@@ -75,17 +75,30 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
         category,
         description: description.trim(),
         photos,
-        createdBy: activity ? activity.createdBy : "Admin", // Retain author or default
-        aiFormatted: activity ? activity.aiFormatted : false // Will update below
+        createdBy: activity ? activity.createdBy : "Admin",
+        aiFormatted: activity ? activity.aiFormatted : false
       };
 
       let finalDescription = rawEntry.description;
       let finalAiFormatted = rawEntry.aiFormatted;
+      let aiWarning = null;
 
       // Run AI formatter if selected
       if (aiFormatted && (!activity || rawEntry.description !== activity.description || !activity.aiFormatted)) {
-        finalDescription = await formatActivityWithAI(rawEntry);
-        finalAiFormatted = true;
+        try {
+          finalDescription = await formatActivityWithAI(rawEntry);
+          finalAiFormatted = true;
+        } catch (aiError) {
+          // If AI is not configured (503), gracefully fall back to raw description
+          const isNotConfigured = aiError.message?.includes('not configured') || aiError.message?.includes('503');
+          if (isNotConfigured) {
+            finalDescription = rawEntry.description;
+            finalAiFormatted = false;
+            aiWarning = '⚠️ AI formatting is not available (Gemini API key not set). Activity saved with raw description.';
+          } else {
+            throw aiError; // Re-throw real errors (network down, invalid key, etc.)
+          }
+        }
       }
 
       const savedActivity = {
@@ -96,9 +109,14 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
       };
 
       onSave(savedActivity);
-      onClose();
+      if (aiWarning) {
+        setFormError(aiWarning); // Show warning but don't close — admin can see what happened
+      } else {
+        onClose();
+      }
     } catch (error) {
-      setFormError("Failed to format or save activity. Please try again.");
+      const message = error?.message || "Failed to format or save activity. Please try again.";
+      setFormError(message);
       console.error(error);
     } finally {
       setIsSubmitting(false);

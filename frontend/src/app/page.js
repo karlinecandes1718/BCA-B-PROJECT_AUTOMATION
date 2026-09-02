@@ -82,8 +82,8 @@ export default function LoginPage() {
       return;
     }
     
-    if (!/^[a-zA-Z0-9._%+-]+@bcah\.christuniversity\.in$/.test(trimmed)) {
-      setStudentError("Only official Christ University email addresses are accepted.");
+    if (!/^[a-zA-Z0-9._%+-]+@(bcah\.)?christuniversity\.in$/.test(trimmed)) {
+      setStudentError("Only official Christ University email addresses are accepted (@christuniversity.in or @bcah.christuniversity.in).");
       return;
     }
 
@@ -199,18 +199,11 @@ export default function LoginPage() {
     e.preventDefault();
     setAdminError("");
     
-    // Validate admin name
     const trimmedName = adminName.trim().toLowerCase();
-    const allowedNames = ['shruthika', 'karline', 'deepanshu'];
     
     if (!trimmedName) { 
       setAdminError("Administrator name is required."); 
       return; 
-    }
-    
-    if (!allowedNames.includes(trimmedName)) {
-      setAdminError("Unauthorized administrator name. Allowed names: shruthika, karline, deepanshu");
-      return;
     }
     
     if (!adminPassword) { 

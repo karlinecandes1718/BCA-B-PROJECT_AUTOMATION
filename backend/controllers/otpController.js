@@ -107,7 +107,7 @@ exports.sendOtp = async (req, res) => {
     // Generate OTP
     const otp = String(Math.floor(100000 + Math.random() * 900000));
     
-    console.log(`🔐 Generated OTP: ${otp}`);
+    console.log(`🔐 OTP generated for ${trimmedEmail} (not shown for security)`);
 
     // Store OTP in memory (temporary)
     otpStore[trimmedEmail] = {
