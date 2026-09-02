@@ -11,20 +11,18 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Define the strict schema for required environment variables
+// Define the schema for environment variables
+// GEMINI_API_KEY is optional — AI endpoint handles missing key gracefully at request time
 const envSchema = z.object({
   GEMINI_API_KEY: z
-    .string({ error: 'GEMINI_API_KEY is required but was not found in environment.' })
-    .min(1, 'GEMINI_API_KEY must not be empty.')
-    .refine(
-      (val) => !val.startsWith('dummy') && !val.startsWith('your_'),
-      'GEMINI_API_KEY appears to be a placeholder. Please set a real API key.'
-    ),
+    .string()
+    .optional()
+    .default(''),
 
   ADMIN_PASSWORD: z
-    .string({ error: 'ADMIN_PASSWORD is required but was not found in environment.' })
+    .string()
     .min(1, 'ADMIN_PASSWORD must not be empty.')
-    .default('12345'),
+    .default('bcab2024'),
 
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
@@ -33,7 +31,7 @@ const envSchema = z.object({
   PORT: z
     .string()
     .optional()
-    .default('5000'),
+    .default('5003'),
 });
 
 // Parse and validate — crash safely if invalid

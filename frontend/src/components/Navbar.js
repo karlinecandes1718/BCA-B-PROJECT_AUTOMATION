@@ -10,6 +10,17 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [showConfirmLogout, setShowConfirmLogout] = useState(false);
+  const [tokenUsage, setTokenUsage] = useState(0);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const updateTokens = () => {
+      setTokenUsage(parseInt(localStorage.getItem('bca_token_usage') || '0', 10));
+    };
+    updateTokens();
+    window.addEventListener('bca_token_usage_updated', updateTokens);
+    return () => window.removeEventListener('bca_token_usage_updated', updateTokens);
+  }, []);
 
   if (!user) return null;
 
@@ -60,6 +71,20 @@ export default function Navbar() {
                 </span>
                 <span className="text-sm font-semibold truncate max-w-[180px]">{user.identifier}</span>
               </div>
+
+              {/* Token Bar (Admins Only) */}
+              {user.role === "admin" && (
+                <div className="hidden lg:flex flex-col items-end mx-4 border-l border-white/20 pl-4" title={`Tokens used: ${tokenUsage} / 1,000,000 (Free Tier)`}>
+                  <span className="text-[10px] text-blue-200 uppercase tracking-wider font-semibold mb-1">API Tokens</span>
+                  <div className="w-24 h-2 bg-white/20 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full ${tokenUsage > 800000 ? 'bg-red-400' : tokenUsage > 500000 ? 'bg-yellow-400' : 'bg-green-400'}`} 
+                      style={{ width: `${Math.min(100, (tokenUsage / 1000000) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] mt-1 opacity-80">{tokenUsage.toLocaleString()}</span>
+                </div>
+              )}
 
               {/* Mobile identity */}
               <div className="md:hidden bg-white/10 px-2.5 py-1.5 rounded-md">

@@ -1,61 +1,67 @@
 /**
- * Simulates AI formatting of raw activity inputs into a structured report format.
- * This is designed as an asynchronous function to integrate with loading UI states
- * and serve as a direct hook for the final AI implementation.
- * 
- * @param {Object} activity - The raw activity object
- * @returns {Promise<string>} The formatted description text
+ * Calls the backend AI endpoint to format a raw activity into a structured
+ * institutional report. Sends text keywords and/or an image for analysis.
+ *
+ * @param {Object} activity - The raw activity object from ActivityForm
+ * @returns {Promise<{ description: string, usage: number }>}
  */
 export const formatActivityWithAI = async (activity) => {
-  // Simulate network/inference latency (1.5 seconds)
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const { description, photos } = activity;
 
-  const { title, date, category, description, createdBy } = activity;
+  // ── Build the request payload ───────────────────────────────────────────────
+  const payload = {};
 
-  // Formatting logic: structure the raw description into a standard institutional report
-  let formatted = "";
+  // Include text description if provided
+  if (description && description.trim().length > 0) {
+    payload.text = description.trim();
+  }
 
-  // 1. Title & Header
-  formatted += `# INSTITUTIONAL ACTIVITY REPORT: ${title.toUpperCase()}\n`;
-  formatted += `**Category:** ${category} | **Event Date:** ${date} | **Log By:** ${createdBy || "Admin"}\n`;
-  formatted += `**Status:** Verified | **Class:** 3BCA-B\n\n`;
-  formatted += `---\n\n`;
-
-  // 2. Main Narrative & Bullet formatting
-  formatted += `### I. EXECUTIVE SUMMARY & DESCRIPTION\n`;
-  
-  // Clean up description: if user put raw paragraphs, separate them and format
-  const paragraphs = description
-    .split(/\n+/)
-    .map(p => p.trim())
-    .filter(p => p.length > 0);
-
-  // If the user already wrote markdown, we keep it, otherwise clean it up
-  if (description.includes("###") || description.includes("- ") || description.includes("**")) {
-    formatted += description;
-  } else {
-    // Convert regular text paragraphs to structured paragraphs
-    paragraphs.forEach((p, idx) => {
-      if (idx === 0) {
-        formatted += `${p}\n\n`;
-      } else if (idx === 1) {
-        formatted += `### II. KEY HIGHLIGHTS & OUTCOMES\n`;
-        formatted += `- ${p}\n`;
-      } else {
-        formatted += `- ${p}\n`;
+  // Include the first photo as base64 image if provided
+  if (photos && photos.length > 0) {
+    const firstPhoto = photos[0];
+    // Photos are stored as data URLs: "data:image/jpeg;base64,..."
+    if (typeof firstPhoto === 'string' && firstPhoto.startsWith('data:image/')) {
+      const mimeMatch = firstPhoto.match(/^data:(image\/[a-zA-Z]+);base64,/);
+      if (mimeMatch) {
+        const mimeType = mimeMatch[1];
+        // Only send supported MIME types
+        if (['image/jpeg', 'image/png', 'image/webp'].includes(mimeType)) {
+          payload.image = {
+            mimeType,
+            data: firstPhoto, // Backend strips the prefix itself
+          };
+        }
       }
-    });
-
-    if (paragraphs.length <= 1) {
-      formatted += `\n### II. KEY HIGHLIGHTS & OUTCOMES\n`;
-      formatted += `- Activity successfully conducted on the scheduled date.\n`;
-      formatted += `- Active participation observed from 3BCA-B students.\n`;
-      formatted += `- Logged details archived for college audit records.\n`;
     }
   }
 
-  formatted += `\n\n---\n`;
-  formatted += `*Report automatically structured by 3BCA-B AI Reporter on ${new Date().toLocaleDateString()}*`;
+  // Must have at least one input
+  if (!payload.text && !payload.image) {
+    throw new Error('No content to format. Please add a description or a photo.');
+  }
 
-  return formatted;
+  // ── Call backend ────────────────────────────────────────────────────────────
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5003';
+
+  const response = await fetch(`${API_BASE}/api/keywords`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    throw new Error(result.error || `AI formatting failed (HTTP ${response.status})`);
+  }
+
+  // Track token usage in localStorage
+  const currentUsage = parseInt(localStorage.getItem('bca_token_usage') || '0', 10);
+  const newUsage = currentUsage + (result.data?.usage || 0);
+  localStorage.setItem('bca_token_usage', newUsage.toString());
+
+  // Dispatch a custom event so the UI can update
+  window.dispatchEvent(new Event('bca_token_usage_updated'));
+
+  return result.data?.description ?? '';
 };

@@ -14,7 +14,12 @@ const express = require('express');
 const router = express.Router();
 
 // Read environment variables directly
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '12345';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+// Allowed admin names — set ADMIN_NAMES in .env as comma-separated list
+const ADMIN_NAMES = (process.env.ADMIN_NAMES || 'shruthika,karline,deepanshu')
+  .split(',')
+  .map(n => n.trim().toLowerCase())
+  .filter(n => n.length > 0);
 
 /**
  * POST /api/auth/admin
@@ -32,14 +37,13 @@ router.post('/admin', (req, res) => {
     return;
   }
 
-  // Validate admin name (case-insensitive)
-  const allowedNames = ['shruthika', 'karline', 'deepanshu'];
+  // Validate admin name (case-insensitive) — names come from env, not source code
   const normalizedName = name.trim().toLowerCase();
   
-  if (!allowedNames.includes(normalizedName)) {
+  if (!ADMIN_NAMES.includes(normalizedName)) {
     res.status(401).json({
       success: false,
-      error: 'Unauthorized administrator name.',
+      error: 'Invalid administrator credentials.',
     });
     return;
   }
