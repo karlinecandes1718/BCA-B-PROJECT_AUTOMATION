@@ -91,11 +91,26 @@ export default function LoginPage() {
       // Send OTP
       setOtpLoading(true);
       try {
-        const response = await fetch(`${API_BASE}/api/send-otp`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: trimmed }),
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout
+        let response;
+        try {
+          response = await fetch(`${API_BASE}/api/send-otp`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: trimmed }),
+            signal: controller.signal,
+          });
+        } catch (fetchErr) {
+          if (fetchErr.name === "AbortError") {
+            setStudentError("The server is waking up — please wait 30 seconds and try again.");
+            setOtpLoading(false);
+            return;
+          }
+          throw fetchErr;
+        } finally {
+          clearTimeout(timeoutId);
+        }
 
         const data = await response.json();
 
