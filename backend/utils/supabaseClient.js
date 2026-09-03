@@ -5,21 +5,19 @@ require('dotenv').config();
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
-let supabase = null;
-
-if (!supabaseUrl || !supabaseKey || !supabaseUrl.startsWith('http')) {
-  console.warn('⚠️ Supabase credentials are missing or invalid placeholders. Database features will fail.');
-  // Create a mock object so requiring it doesn't crash
-  supabase = { from: () => ({ select: () => ({ eq: () => ({ single: () => ({}) }) }) }) };
-} else {
-  supabase = createClient(supabaseUrl, supabaseKey, {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: false,
-      detectSessionInUrl: false
-    }
-  });
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Supabase credentials are missing. Please check your .env file.');
+  console.error('Required: SUPABASE_URL and SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY');
+  process.exit(1);
 }
+
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: false,
+    detectSessionInUrl: false
+  }
+});
 
 // Database helper functions
 const db = {
@@ -246,25 +244,7 @@ const db = {
     } catch (error) {
       console.error('[SUPABASE] Error logging activity:', error.message);
     }
-  },
-
-  /**
-   * Ping database to prevent Supabase from pausing inactive projects
-   */
-  async keepAlive() {
-    try {
-      // Just a tiny query to keep the database active
-      await supabase.from('users').select('id').limit(1);
-      console.log('💚 [SUPABASE] Keep-alive ping successful (Prevents DB from pausing)');
-    } catch (error) {
-      console.error('⚠️ [SUPABASE] Keep-alive ping failed:', error.message);
-    }
   }
 };
-
-// Ping the database every 12 hours to prevent Supabase free-tier from pausing
-setInterval(() => {
-  db.keepAlive();
-}, 12 * 60 * 60 * 1000);
 
 module.exports = { supabase, db };

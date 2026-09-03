@@ -18,8 +18,10 @@ export default function ActivityCard({ activity, isAdmin, onEdit, onDelete }) {
 
   const getExcerpt = (text) => {
     if (!text) return "";
+    // Recover corrupted localStorage entries where description is an object { description, usage }
+    const strText = typeof text === 'string' ? text : (text.description || String(text));
     // Strip markdown headers/markers for cleaner excerpt
-    const cleanText = text
+    const cleanText = strText
       .replace(/[#*`_-]/g, "")
       .replace(/\[.*\]\(.*\)/g, "")
       .trim();

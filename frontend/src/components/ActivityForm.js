@@ -86,7 +86,9 @@ export default function ActivityForm({ activity, isOpen, onClose, onSave }) {
       // Run AI formatter if selected
       if (aiFormatted && (!activity || rawEntry.description !== activity.description || !activity.aiFormatted)) {
         try {
-          finalDescription = await formatActivityWithAI(rawEntry);
+          const aiResult = await formatActivityWithAI(rawEntry);
+          finalDescription = aiResult.description;
+          // Optionally save usage token count somewhere if we want (e.g. rawEntry.usage = aiResult.usage)
           finalAiFormatted = true;
         } catch (aiError) {
           // If AI is not configured (503), gracefully fall back to raw description

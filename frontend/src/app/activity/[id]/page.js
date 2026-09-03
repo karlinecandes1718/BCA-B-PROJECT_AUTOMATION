@@ -73,7 +73,8 @@ export default function ActivityDetail() {
 
   const renderMd = (text) => {
     if (!text) return null;
-    return text.split("\n").map((line, i) => {
+    const strText = typeof text === 'string' ? text : (text.description || String(text));
+    return strText.split("\n").map((line, i) => {
       const t = line.trim();
       if (t.startsWith("# ")) return <h2 key={i} className="text-xl font-black text-[#0F172A] border-b border-[#D9E3F0] pb-2 mt-6 mb-3">{t.slice(2)}</h2>;
       if (t.startsWith("### ")) return <h3 key={i} className="text-base font-extrabold text-[#3B7DD8] mt-4 mb-2">{t.slice(4)}</h3>;
