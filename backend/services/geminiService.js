@@ -1,7 +1,7 @@
 const { GoogleGenAI } = require('@google/genai');
 
-const ALLOWED_MODELS = ['gemini-1.5-flash', 'gemini-2.0-flash'];
-const DEFAULT_MODEL = 'gemini-1.5-flash';
+const ALLOWED_MODELS = ['gemini-2.0-flash-lite', 'gemini-2.0-flash'];
+const DEFAULT_MODEL = 'gemini-2.0-flash-lite';
 
 function resolveModel(requestedModel) {
   if (requestedModel !== undefined) {
