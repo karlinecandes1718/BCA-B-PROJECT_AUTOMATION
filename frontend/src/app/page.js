@@ -27,6 +27,7 @@ export default function LoginPage() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
   const [canResend, setCanResend] = useState(true);
+  const [serverWaking, setServerWaking] = useState(false);
 
   // Redirect if already logged in — runs only once when loading finishes
   useEffect(() => {
@@ -90,9 +91,12 @@ export default function LoginPage() {
     if (!otpSent) {
       // Send OTP
       setOtpLoading(true);
+      setServerWaking(false);
       try {
+        // Show "waking up" message after 5s if server hasn't responded
+        const wakingTimer = setTimeout(() => setServerWaking(true), 5000);
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
         let response;
         try {
           response = await fetch(`${API_BASE}/api/send-otp`, {
@@ -102,14 +106,18 @@ export default function LoginPage() {
             signal: controller.signal,
           });
         } catch (fetchErr) {
+          clearTimeout(wakingTimer);
           if (fetchErr.name === "AbortError") {
-            setStudentError("The server is waking up — please wait 30 seconds and try again.");
+            setServerWaking(false);
+            setStudentError("Server took too long to respond. Please try again.");
             setOtpLoading(false);
             return;
           }
           throw fetchErr;
         } finally {
           clearTimeout(timeoutId);
+          clearTimeout(wakingTimer);
+          setServerWaking(false);
         }
 
         const data = await response.json();
@@ -414,7 +422,7 @@ export default function LoginPage() {
                     {otpLoading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                        Processing...
+                        {serverWaking ? "Server waking up, please wait..." : "Processing..."}
                       </>
                     ) : otpSent ? (
                       'Verify OTP & Sign In'
