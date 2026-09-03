@@ -10,14 +10,12 @@ const keywordsRouter = require('./routes/keywords.js');
 
 const app = express();
 
-// 1. Enable CORS for local Next.js frontend calls
+// 1. Enable CORS for frontend calls
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:3001',
-    'http://127.0.0.1:3001',
-  ],
+  origin: function (origin, callback) {
+    // Allow all origins (Vercel, Localhost, etc) for this project
+    callback(null, true);
+  },
   credentials: true
 }));
 
