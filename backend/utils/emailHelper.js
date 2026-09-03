@@ -72,12 +72,11 @@ async function tryGmailDelivery(emailOptions) {
   
   const transporter = nodemailer.createTransport({
     service: 'gmail',
-    auth: { user: gmailUser, pass: gmailPass }
+    auth: { user: gmailUser, pass: gmailPass },
+    connectionTimeout: 8000, // 8 second timeout
+    greetingTimeout: 8000,
+    socketTimeout: 8000
   });
-  
-  console.log('🔗 Verifying Gmail connection...');
-  await transporter.verify();
-  console.log('✅ Gmail connection verified');
   
   const info = await transporter.sendMail(emailOptions);
   return { success: true, messageId: info.messageId, method: 'Gmail' };
@@ -97,7 +96,10 @@ async function tryEtherealDelivery(emailOptions) {
     auth: {
       user: testAccount.user,
       pass: testAccount.pass
-    }
+    },
+    connectionTimeout: 8000,
+    greetingTimeout: 8000,
+    socketTimeout: 8000
   });
   
   const info = await transporter.sendMail({
@@ -124,10 +126,12 @@ async function tryAlternativeGmail(emailOptions) {
     port: 587,
     secure: false,
     auth: { user: gmailUser, pass: gmailPass },
-    tls: { rejectUnauthorized: false }
+    tls: { rejectUnauthorized: false },
+    connectionTimeout: 8000,
+    greetingTimeout: 8000,
+    socketTimeout: 8000
   });
   
-  await transporter.verify();
   const info = await transporter.sendMail(emailOptions);
   return { success: true, messageId: info.messageId, method: 'Gmail Alternative' };
 }
