@@ -1,6 +1,7 @@
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import SecurityGuard from "../components/SecurityGuard";
+import LayoutClient from "./layout-client";
 
 export const metadata = {
   title: "3BCA-B Classroom Activity Log Portal",
@@ -12,10 +13,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-[#F0F7FF] text-[#1E293B]">
-        <AuthProvider>
-          <SecurityGuard />
+        <LayoutClient>
           {children}
-        </AuthProvider>
+        </LayoutClient>
       </body>
     </html>
   );

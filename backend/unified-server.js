@@ -6,6 +6,7 @@ require('dotenv').config();
 // Import routes
 const otpRoutes = require('./routes/otpRoutes');
 const authRouter = require('./routes/auth.js');
+const keywordsRouter = require('./routes/keywords.js');
 
 const app = express();
 
@@ -21,7 +22,7 @@ app.use(cors({
 }));
 
 // 2. Parse JSON bodies
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // 3. Define Rate Limiter to prevent spam-abuse
 const otpRateLimiter = rateLimit({
@@ -41,9 +42,8 @@ app.use('/api', otpRateLimiter, otpRoutes);
 // 5. Attach Auth Routes
 app.use('/api/auth', authRouter);
 
-// 5.5. Attach AI Routes
-const aiRoutes = require('./routes/aiRoutes');
-app.use('/api', aiRoutes); // Mounts POST /api/keywords
+// 6. Attach Keywords/AI Routes
+app.use('/api/keywords', keywordsRouter);
 
 // Simple healthcheck endpoint
 app.get('/health', (req, res) => {

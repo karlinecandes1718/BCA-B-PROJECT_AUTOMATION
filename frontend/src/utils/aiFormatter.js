@@ -55,13 +55,8 @@ export const formatActivityWithAI = async (activity) => {
     throw new Error(result.error || `AI formatting failed (HTTP ${response.status})`);
   }
 
-  // Track token usage in localStorage
-  const currentUsage = parseInt(localStorage.getItem('bca_token_usage') || '0', 10);
-  const newUsage = currentUsage + (result.data?.usage || 0);
-  localStorage.setItem('bca_token_usage', newUsage.toString());
-
-  // Dispatch a custom event so the UI can update
-  window.dispatchEvent(new Event('bca_token_usage_updated'));
-
-  return result.data?.description ?? '';
+  return {
+    description: result.data?.description ?? '',
+    usage: result.data?.usage ?? 0,
+  };
 };
