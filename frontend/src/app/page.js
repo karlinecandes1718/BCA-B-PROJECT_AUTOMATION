@@ -40,6 +40,11 @@ export default function LoginPage() {
     }
   }, [loading, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Pre-warm the backend on mount
+  useEffect(() => {
+    fetch(`${API_BASE}/health`).catch(() => {});
+  }, []);
+
   // OTP Timer effect
   useEffect(() => {
     let interval;
