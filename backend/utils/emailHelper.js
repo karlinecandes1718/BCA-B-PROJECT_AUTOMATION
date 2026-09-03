@@ -68,12 +68,14 @@ async function tryGmailDelivery(emailOptions) {
   const gmailUser = process.env.EMAIL_USER;
   const gmailPass = process.env.EMAIL_PASS;
   
-  console.log('📤 Trying Gmail SMTP...');
+  console.log('📤 Trying Gmail SMTP (Port 465)...');
   
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // use SSL
     auth: { user: gmailUser, pass: gmailPass },
-    connectionTimeout: 8000, // 8 second timeout
+    connectionTimeout: 8000,
     greetingTimeout: 8000,
     socketTimeout: 8000
   });
@@ -119,12 +121,12 @@ async function tryAlternativeGmail(emailOptions) {
   const gmailUser = process.env.EMAIL_USER;
   const gmailPass = process.env.EMAIL_PASS;
   
-  console.log('📤 Trying alternative Gmail SMTP configuration...');
+  console.log('📤 Trying alternative Gmail SMTP (Port 465 with TLS bypass)...');
   
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
+    port: 465,
+    secure: true,
     auth: { user: gmailUser, pass: gmailPass },
     tls: { rejectUnauthorized: false },
     connectionTimeout: 8000,
