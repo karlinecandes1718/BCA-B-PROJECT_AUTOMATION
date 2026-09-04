@@ -1,13 +1,13 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenAI } = require('@google/genai');
 
-const ALLOWED_MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash'];
-const DEFAULT_MODEL = 'gemini-2.0-flash';
+const ALLOWED_MODELS = ['gemini-3.6-flash', 'gemini-2.5-flash'];
+const DEFAULT_MODEL = 'gemini-3.6-flash';
 
 function resolveModel(requestedModel) {
   if (requestedModel !== undefined) {
     if (!ALLOWED_MODELS.includes(requestedModel)) {
       throw new Error(
-        `Model "${requestedModel}" is not permitted. Only free-tier flash models are allowed: ${ALLOWED_MODELS.join(', ')}.`
+        `Model "${requestedModel}" is not permitted. Allowed models: ${ALLOWED_MODELS.join(', ')}.`
       );
     }
     return requestedModel;
@@ -47,9 +47,8 @@ async function generateEventDescription(keywordList, image, model) {
     throw new Error('Gemini API key is not configured. Please add your GEMINI_API_KEY.');
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
+  const ai = new GoogleGenAI({ apiKey });
   const resolvedModel = resolveModel(model);
-  const geminiModel = genAI.getGenerativeModel({ model: resolvedModel });
 
   const sanitizedKeywords = Array.isArray(keywordList)
     ? keywordList.map((k) => String(k).trim()).filter((k) => k.length > 0)
@@ -66,17 +65,28 @@ async function generateEventDescription(keywordList, image, model) {
     userInput = `User Input: (No keywords provided. Please analyze the image and generate the description based entirely on what you see in the flyer/photo.)`;
   }
 
-  const parts = [{ text: SYSTEM_PROMPT + '\n\n' + userInput }];
-
-  if (image) {
-    const base64Data = image.data.replace(/^data:image\/\w+;base64,/, '');
-    parts.push({ inlineData: { mimeType: image.mimeType, data: base64Data } });
-  }
-
   try {
-    const result = await geminiModel.generateContent({ contents: [{ role: 'user', parts }] });
-    const response = result.response;
-    const rawText = response.text();
+    let response;
+
+    if (image) {
+      // With image: use parts array
+      const base64Data = image.data.replace(/^data:image\/\w+;base64,/, '');
+      response = await ai.models.generateContent({
+        model: resolvedModel,
+        contents: [
+          { text: SYSTEM_PROMPT + '\n\n' + userInput },
+          { inlineData: { mimeType: image.mimeType, data: base64Data } }
+        ]
+      });
+    } else {
+      // Text only
+      response = await ai.models.generateContent({
+        model: resolvedModel,
+        contents: SYSTEM_PROMPT + '\n\n' + userInput
+      });
+    }
+
+    const rawText = response.text;
 
     if (!rawText || rawText.trim() === '') {
       throw new Error('Gemini returned an empty response body.');
