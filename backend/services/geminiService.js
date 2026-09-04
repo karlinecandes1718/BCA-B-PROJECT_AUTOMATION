@@ -1,7 +1,7 @@
-const { GoogleGenAI } = require('@google/genai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const ALLOWED_MODELS = ['gemini-2.0-flash-lite', 'gemini-2.0-flash'];
-const DEFAULT_MODEL = 'gemini-2.0-flash-lite';
+const ALLOWED_MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+const DEFAULT_MODEL = 'gemini-2.0-flash';
 
 function resolveModel(requestedModel) {
   if (requestedModel !== undefined) {
@@ -44,12 +44,14 @@ Call to Action:
 async function generateEventDescription(keywordList, image, model) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey.trim() === '' || apiKey.includes('YOUR_GEMINI_API_KEY')) {
-    throw new Error('Gemini API key is not configured in backend/.env file. Please add your GEMINI_API_KEY.');
+    throw new Error('Gemini API key is not configured. Please add your GEMINI_API_KEY.');
   }
 
-  const ai = new GoogleGenAI({ apiKey });
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const resolvedModel = resolveModel(model);
+  const geminiModel = genAI.getGenerativeModel({ model: resolvedModel });
 
-  const sanitizedKeywords = Array.isArray(keywordList) 
+  const sanitizedKeywords = Array.isArray(keywordList)
     ? keywordList.map((k) => String(k).trim()).filter((k) => k.length > 0)
     : [];
 
@@ -57,10 +59,6 @@ async function generateEventDescription(keywordList, image, model) {
     throw new Error('You must provide either valid keywords or an image to analyze.');
   }
 
-  const resolvedModel = resolveModel(model);
-
-  let contentsPayload = [];
-  
   let userInput = '';
   if (sanitizedKeywords.length > 0) {
     userInput = `User Input Keywords: ${sanitizedKeywords.join(', ')}`;
@@ -68,49 +66,40 @@ async function generateEventDescription(keywordList, image, model) {
     userInput = `User Input: (No keywords provided. Please analyze the image and generate the description based entirely on what you see in the flyer/photo.)`;
   }
 
-  contentsPayload.push(SYSTEM_PROMPT);
+  const parts = [{ text: SYSTEM_PROMPT + '\n\n' + userInput }];
 
   if (image) {
-    const base64Data = image.data.replace(/^data:image\/\w+;base64,/, "");
-    contentsPayload.push({ inlineData: { mimeType: image.mimeType, data: base64Data } });
-  }
-
-  if (userInput) {
-    contentsPayload.push(userInput);
+    const base64Data = image.data.replace(/^data:image\/\w+;base64,/, '');
+    parts.push({ inlineData: { mimeType: image.mimeType, data: base64Data } });
   }
 
   try {
-    const response = await ai.models.generateContent({
-      model: resolvedModel,
-      contents: contentsPayload,
-    });
-
-    const rawText = response.text;
-    const usage = response.usageMetadata?.totalTokenCount || 0;
+    const result = await geminiModel.generateContent({ contents: [{ role: 'user', parts }] });
+    const response = result.response;
+    const rawText = response.text();
 
     if (!rawText || rawText.trim() === '') {
       throw new Error('Gemini returned an empty response body.');
     }
 
+    const usage = response.usageMetadata?.totalTokenCount || 0;
     return { description: rawText.trim(), usage };
 
   } catch (error) {
     console.error('[geminiService] Gemini API error:', error.message || error);
-    
-    if (error && typeof error === 'object') {
-      const err = error;
-      if (err.status === 403 || (err.error && err.error.code === 403) || err.message?.includes('API key')) {
-        throw new Error('Invalid or leaked API key. Please update your backend .env file with a valid GEMINI_API_KEY.');
-      }
-    }
 
     const rawMessage = error instanceof Error ? error.message : String(error);
-    const isImageError = /image|format|safety|content/i.test(rawMessage);
-    if (image && isImageError) {
-      throw new Error("Unable to read the image. Please delete it and add a clearer image, or add a text description instead.");
+
+    if (rawMessage.includes('API key') || rawMessage.includes('403')) {
+      throw new Error('Invalid Gemini API key. Please check your GEMINI_API_KEY.');
     }
 
-    throw new Error(rawMessage || "Gemini API call failed. Please try again later.");
+    const isImageError = /image|format|safety|content/i.test(rawMessage);
+    if (image && isImageError) {
+      throw new Error('Unable to read the image. Please delete it and add a clearer image, or add a text description instead.');
+    }
+
+    throw new Error(rawMessage || 'Gemini API call failed. Please try again later.');
   }
 }
 
