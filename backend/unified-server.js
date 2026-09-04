@@ -59,11 +59,16 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, error: "Something went wrong on the server." });
 });
 
-// 8. Bind to configured port
-const PORT = process.env.PORT || 5003;
-app.listen(PORT, () => {
-  console.log(`[UNIFIED SERVER] Backend listening on port ${PORT}`);
-  console.log(`✅ OTP endpoints: /api/send-otp, /api/verify-otp, /api/resend-otp`);
-  console.log(`✅ Auth endpoints: /api/auth/admin`);
-  console.log(`✅ Health check: /health`);
-});
+// 8. Bind to configured port (only if not running on Vercel)
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5003;
+  app.listen(PORT, () => {
+    console.log(`[UNIFIED SERVER] Backend listening on port ${PORT}`);
+    console.log(`✅ OTP endpoints: /api/send-otp, /api/verify-otp, /api/resend-otp`);
+    console.log(`✅ Auth endpoints: /api/auth/admin`);
+    console.log(`✅ Health check: /health`);
+  });
+}
+
+// Export for Vercel serverless
+module.exports = app;
